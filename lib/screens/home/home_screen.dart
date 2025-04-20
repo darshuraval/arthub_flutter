@@ -10,6 +10,41 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final List<Map<String, String>> categories = [
+      {
+        'title': 'Culture',
+        'image': 'https://example.com/images/culture.jpg',
+      },
+      {
+        'title': 'Mughal',
+        'image': 'https://example.com/images/mughal.jpg',
+      },
+      {
+        'title': 'Still Life',
+        'image': 'https://example.com/images/still_life.jpg',
+      },
+      {
+        'title': 'WildLife',
+        'image': 'https://example.com/images/wildlife.jpg',
+      },
+      {
+        'title': 'Persian',
+        'image': 'https://example.com/images/persian.jpg',
+      },
+      {
+        'title': 'Landscape',
+        'image': 'https://example.com/images/landscape.jpg',
+      },
+      {
+        'title': 'Folk',
+        'image': 'https://example.com/images/folk.jpg',
+      },
+      {
+        'title': 'Hindu',
+        'image': 'https://example.com/images/hindu.jpg',
+      },
+    ];
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -70,50 +105,34 @@ class HomeScreen extends StatelessWidget {
                   TextButton(
                     onPressed: () {},
                     child: Text(
-                      'See All',
+                      'See all',
                       style: TextStyle(
                         color: AppStyles.primaryColor,
+                        fontSize: 16,
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-            SizedBox(
-              height: 160,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                children: [
-                  CategoryCard(
-                    title: 'Culture',
-                    imageUrl: 'assets/images/categories/culture.jpg',
-                    onTap: () {},
-                    width: MediaQuery.of(context).size.width / 2 - 24,
-                  ),
-                  const SizedBox(width: 12),
-                  CategoryCard(
-                    title: 'Mughal',
-                    imageUrl: 'assets/images/categories/mughal.jpg',
-                    onTap: () {},
-                    width: MediaQuery.of(context).size.width / 2 - 24,
-                  ),
-                  const SizedBox(width: 12),
-                  CategoryCard(
-                    title: 'Still Life',
-                    imageUrl: 'assets/images/categories/still_life.jpg',
-                    onTap: () {},
-                    width: MediaQuery.of(context).size.width / 2 - 24,
-                  ),
-                  const SizedBox(width: 12),
-                  CategoryCard(
-                    title: 'Wildlife',
-                    imageUrl: 'assets/images/categories/wildlife.jpg',
-                    onTap: () {},
-                    width: MediaQuery.of(context).size.width / 2 - 24,
-                  ),
-                ],
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                mainAxisSpacing: 16,
+                crossAxisSpacing: 16,
+                childAspectRatio: 0.8,
               ),
+              itemCount: 8,
+              itemBuilder: (context, index) {
+                return CategoryCard(
+                  title: categories[index]['title']!,
+                  imageUrl: categories[index]['image']!,
+                  onTap: () {},
+                );
+              },
             ),
 
             // New Products
@@ -132,9 +151,10 @@ class HomeScreen extends StatelessWidget {
                   TextButton(
                     onPressed: () {},
                     child: Text(
-                      'See All',
+                      'See all',
                       style: TextStyle(
                         color: AppStyles.primaryColor,
+                        fontSize: 16,
                       ),
                     ),
                   ),

@@ -4,16 +4,16 @@ class CategoryCard extends StatelessWidget {
   final String title;
   final String imageUrl;
   final VoidCallback onTap;
-  final double width;
-  final double height;
+  final double? width;
+  final double? height;
 
   const CategoryCard({
     Key? key,
     required this.title,
     required this.imageUrl,
     required this.onTap,
-    this.width = 160,
-    this.height = 160,
+    this.width,
+    this.height,
   }) : super(key: key);
 
   @override
@@ -24,7 +24,7 @@ class CategoryCard extends StatelessWidget {
         width: width,
         height: height,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(0),
           image: DecorationImage(
             image: NetworkImage(imageUrl),
             fit: BoxFit.cover,
@@ -32,13 +32,12 @@ class CategoryCard extends StatelessWidget {
         ),
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
             gradient: LinearGradient(
-              begin: Alignment.center,
+              begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Colors.transparent,
-                Colors.black.withOpacity(0.7),
+                Colors.black.withOpacity(0.2),
+                Colors.black.withOpacity(0.6),
               ],
             ),
           ),
@@ -47,8 +46,9 @@ class CategoryCard extends StatelessWidget {
             title,
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.5,
             ),
             textAlign: TextAlign.center,
           ),
