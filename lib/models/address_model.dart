@@ -3,6 +3,7 @@ class AddressModel {
   final String userId;
   final String fullName;
   final String streetAddress;
+  final String apartment;
   final String city;
   final String state;
   final String zipCode;
@@ -18,13 +19,14 @@ class AddressModel {
     required this.userId,
     required this.fullName,
     required this.streetAddress,
+    required this.apartment,
     required this.city,
     required this.state,
     required this.zipCode,
     required this.country,
     required this.phoneNumber,
     required this.addressType,
-    required this.isDefault,
+    this.isDefault = false,
     required this.createdAt,
     this.updatedAt,
   });
@@ -34,6 +36,7 @@ class AddressModel {
     String? userId,
     String? fullName,
     String? streetAddress,
+    String? apartment,
     String? city,
     String? state,
     String? zipCode,
@@ -49,6 +52,7 @@ class AddressModel {
       userId: userId ?? this.userId,
       fullName: fullName ?? this.fullName,
       streetAddress: streetAddress ?? this.streetAddress,
+      apartment: apartment ?? this.apartment,
       city: city ?? this.city,
       state: state ?? this.state,
       zipCode: zipCode ?? this.zipCode,
@@ -58,6 +62,44 @@ class AddressModel {
       isDefault: isDefault ?? this.isDefault,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'userId': userId,
+      'fullName': fullName,
+      'streetAddress': streetAddress,
+      'apartment': apartment,
+      'city': city,
+      'state': state,
+      'zipCode': zipCode,
+      'country': country,
+      'phoneNumber': phoneNumber,
+      'addressType': addressType,
+      'isDefault': isDefault,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt?.toIso8601String(),
+    };
+  }
+
+  factory AddressModel.fromJson(Map<String, dynamic> json) {
+    return AddressModel(
+      id: json['id'],
+      userId: json['userId'],
+      fullName: json['fullName'],
+      streetAddress: json['streetAddress'],
+      apartment: json['apartment'],
+      city: json['city'],
+      state: json['state'],
+      zipCode: json['zipCode'],
+      country: json['country'],
+      phoneNumber: json['phoneNumber'],
+      addressType: json['addressType'],
+      isDefault: json['isDefault'] ?? false,
+      createdAt: DateTime.parse(json['createdAt']),
+      updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
     );
   }
 } 

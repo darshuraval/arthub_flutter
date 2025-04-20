@@ -1,3 +1,5 @@
+import 'package:arthub_flutter/models/order_model.dart';
+
 enum PaymentStatus {
   pending,
   processing,
@@ -24,17 +26,19 @@ class PaymentModel {
   final DateTime? timestamp;
   final String? transactionId;
   final Map<String, dynamic>? paymentDetails;
-  final String? errorMessage;
+  final String? refundReason;
+  final double? refundAmount;
+  final DateTime? refundDate;
   final String cardType;
   final String cardNumber;
   final String expiryDate;
-  final String? cvv;
+  final String cvv;
   final String cardholderName;
   final bool isDefault;
-  final DateTime? createdAt;
-  final DateTime? updatedAt;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
-  PaymentModel({
+  const PaymentModel({
     required this.id,
     this.orderId,
     this.userId,
@@ -44,74 +48,20 @@ class PaymentModel {
     this.timestamp,
     this.transactionId,
     this.paymentDetails,
-    this.errorMessage,
+    this.refundReason,
+    this.refundAmount,
+    this.refundDate,
     required this.cardType,
     required this.cardNumber,
     required this.expiryDate,
-    this.cvv,
+    required this.cvv,
     required this.cardholderName,
     this.isDefault = false,
-    this.createdAt,
-    this.updatedAt,
+    required this.createdAt,
+    required this.updatedAt,
   });
 
   String get lastFourDigits => cardNumber.substring(cardNumber.length - 4);
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'orderId': orderId,
-      'userId': userId,
-      'amount': amount,
-      'status': status?.toString(),
-      'paymentMethod': paymentMethod?.toString(),
-      'timestamp': timestamp?.toIso8601String(),
-      'transactionId': transactionId,
-      'paymentDetails': paymentDetails,
-      'errorMessage': errorMessage,
-      'cardType': cardType,
-      'cardNumber': cardNumber,
-      'expiryDate': expiryDate,
-      'cvv': cvv,
-      'cardholderName': cardholderName,
-      'isDefault': isDefault,
-      'createdAt': createdAt?.toIso8601String(),
-      'updatedAt': updatedAt?.toIso8601String(),
-    };
-  }
-
-  factory PaymentModel.fromJson(Map<String, dynamic> json) {
-    return PaymentModel(
-      id: json['id'],
-      orderId: json['orderId'],
-      userId: json['userId'],
-      amount: json['amount']?.toDouble(),
-      status: json['status'] != null
-          ? PaymentStatus.values.firstWhere(
-              (e) => e.toString() == json['status'],
-              orElse: () => PaymentStatus.pending,
-            )
-          : null,
-      paymentMethod: json['paymentMethod'] != null
-          ? PaymentMethod.values.firstWhere(
-              (e) => e.toString() == json['paymentMethod'],
-              orElse: () => PaymentMethod.creditCard,
-            )
-          : null,
-      timestamp: json['timestamp'] != null ? DateTime.parse(json['timestamp']) : null,
-      transactionId: json['transactionId'],
-      paymentDetails: json['paymentDetails'],
-      errorMessage: json['errorMessage'],
-      cardType: json['cardType'] as String,
-      cardNumber: json['cardNumber'] as String,
-      expiryDate: json['expiryDate'] as String,
-      cvv: json['cvv'] as String?,
-      cardholderName: json['cardholderName'] as String,
-      isDefault: json['isDefault'] ?? false,
-      createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt'] as String) : null,
-      updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt'] as String) : null,
-    );
-  }
 
   PaymentModel copyWith({
     String? id,
@@ -123,7 +73,9 @@ class PaymentModel {
     DateTime? timestamp,
     String? transactionId,
     Map<String, dynamic>? paymentDetails,
-    String? errorMessage,
+    String? refundReason,
+    double? refundAmount,
+    DateTime? refundDate,
     String? cardType,
     String? cardNumber,
     String? expiryDate,
@@ -143,7 +95,9 @@ class PaymentModel {
       timestamp: timestamp ?? this.timestamp,
       transactionId: transactionId ?? this.transactionId,
       paymentDetails: paymentDetails ?? this.paymentDetails,
-      errorMessage: errorMessage ?? this.errorMessage,
+      refundReason: refundReason ?? this.refundReason,
+      refundAmount: refundAmount ?? this.refundAmount,
+      refundDate: refundDate ?? this.refundDate,
       cardType: cardType ?? this.cardType,
       cardNumber: cardNumber ?? this.cardNumber,
       expiryDate: expiryDate ?? this.expiryDate,
@@ -154,4 +108,62 @@ class PaymentModel {
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'orderId': orderId,
+    'userId': userId,
+    'amount': amount,
+    'status': status?.toString(),
+    'paymentMethod': paymentMethod?.toString(),
+    'timestamp': timestamp?.toIso8601String(),
+    'transactionId': transactionId,
+    'paymentDetails': paymentDetails,
+    'refundReason': refundReason,
+    'refundAmount': refundAmount,
+    'refundDate': refundDate?.toIso8601String(),
+    'cardType': cardType,
+    'cardNumber': cardNumber,
+    'expiryDate': expiryDate,
+    'cvv': cvv,
+    'cardholderName': cardholderName,
+    'isDefault': isDefault,
+    'createdAt': createdAt.toIso8601String(),
+    'updatedAt': updatedAt.toIso8601String(),
+  };
+
+  factory PaymentModel.fromJson(Map<String, dynamic> json) => PaymentModel(
+    id: json['id'],
+    orderId: json['orderId'],
+    userId: json['userId'],
+    amount: json['amount']?.toDouble(),
+    status: json['status'] != null 
+      ? PaymentStatus.values.firstWhere(
+          (status) => status.toString() == json['status'],
+          orElse: () => PaymentStatus.pending,
+        )
+      : null,
+    paymentMethod: json['paymentMethod'] != null
+      ? PaymentMethod.values.firstWhere(
+          (method) => method.toString() == json['paymentMethod'],
+          orElse: () => PaymentMethod.creditCard,
+        )
+      : null,
+    timestamp: json['timestamp'] != null ? DateTime.parse(json['timestamp']) : null,
+    transactionId: json['transactionId'],
+    paymentDetails: json['paymentDetails'],
+    refundReason: json['refundReason'],
+    refundAmount: json['refundAmount']?.toDouble(),
+    refundDate: json['refundDate'] != null 
+      ? DateTime.parse(json['refundDate'])
+      : null,
+    cardType: json['cardType'],
+    cardNumber: json['cardNumber'],
+    expiryDate: json['expiryDate'],
+    cvv: json['cvv'],
+    cardholderName: json['cardholderName'],
+    isDefault: json['isDefault'] ?? false,
+    createdAt: DateTime.parse(json['createdAt']),
+    updatedAt: DateTime.parse(json['updatedAt']),
+  );
 } 
