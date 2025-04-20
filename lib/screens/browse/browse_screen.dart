@@ -1,31 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:arthub_flutter/config/app_styles.dart';
 import 'package:arthub_flutter/widgets/product_card.dart';
+import 'package:arthub_flutter/utils/sample_data.dart';
 
 class BrowseScreen extends StatelessWidget {
   const BrowseScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> products = [
-      {
-        'title': 'River Boat',
-        'image': 'https://example.com/river_boat.jpg',
-      },
-      {
-        'title': 'Old Mans',
-        'image': 'https://example.com/old_mans.jpg',
-      },
-      {
-        'title': 'Chocolate',
-        'image': 'https://example.com/chocolate.jpg',
-      },
-      {
-        'title': 'The Maid',
-        'image': 'https://example.com/the_maid.jpg',
-      },
-    ];
-
     return Scaffold(
       backgroundColor: AppStyles.primaryColor,
       body: SafeArea(
@@ -101,12 +83,14 @@ class BrowseScreen extends StatelessWidget {
                           crossAxisSpacing: 16,
                           childAspectRatio: 0.8,
                         ),
-                        itemCount: products.length,
+                        itemCount: SampleData.products.length,
                         itemBuilder: (context, index) {
+                          final product = SampleData.products[index];
                           return ProductCard(
-                            imageUrl: products[index]['image'],
-                            title: products[index]['title'],
-                            price: 0,
+                            imageUrl: product['image'] as String,
+                            title: product['title'] as String,
+                            originalPrice: product['originalPrice'] as double,
+                            discountedPrice: product['discountedPrice'] as double?,
                             onTap: () {},
                           );
                         },
