@@ -24,8 +24,7 @@ class CheckoutScreen extends StatefulWidget {
 class _CheckoutScreenState extends State<CheckoutScreen> {
   AddressModel? selectedShippingAddress;
   AddressModel? selectedBillingAddress;
-  PaymentMethod? selectedPaymentMethod;
-  Map<String, dynamic>? selectedPaymentDetails;
+  PaymentModel? selectedPaymentMethod;
   bool isProcessing = false;
 
   @override
@@ -79,7 +78,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   PaymentMethodCard(
                     method: selectedPaymentMethod!,
                     isSelected: true,
-                    paymentDetails: selectedPaymentDetails,
                     onTap: () => _editPayment(),
                   )
                 else
@@ -200,7 +198,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   Future<void> _addPayment() async {
-    final result = await Navigator.push<Map<String, dynamic>>(
+    final result = await Navigator.push<PaymentModel>(
       context,
       MaterialPageRoute(
         builder: (context) => const AddPaymentScreen(),
@@ -209,27 +207,24 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
     if (result != null) {
       setState(() {
-        selectedPaymentMethod = result['method'] as PaymentMethod;
-        selectedPaymentDetails = result['details'] as Map<String, dynamic>;
+        selectedPaymentMethod = result;
       });
     }
   }
 
   Future<void> _editPayment() async {
-    final result = await Navigator.push<Map<String, dynamic>>(
+    final result = await Navigator.push<PaymentModel>(
       context,
       MaterialPageRoute(
         builder: (context) => AddPaymentScreen(
-          method: selectedPaymentMethod,
-          details: selectedPaymentDetails,
+          existingPayment: selectedPaymentMethod,
         ),
       ),
     );
 
     if (result != null) {
       setState(() {
-        selectedPaymentMethod = result['method'] as PaymentMethod;
-        selectedPaymentDetails = result['details'] as Map<String, dynamic>;
+        selectedPaymentMethod = result;
       });
     }
   }
@@ -258,10 +253,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         userId: widget.cart.userId,
         amount: widget.cart.total,
         status: PaymentStatus.completed,
-        paymentMethod: selectedPaymentMethod!,
+        paymentMethod: PaymentMethod.creditCard,
         timestamp: DateTime.now(),
         transactionId: 'tx_${DateTime.now().millisecondsSinceEpoch}',
-        paymentDetails: selectedPaymentDetails!,
+        paymentDetails: {'source': 'app'},
+        cardType: selectedPaymentMethod!.cardType,
+        cardNumber: selectedPaymentMethod!.cardNumber,
+        expiryDate: selectedPaymentMethod!.expiryDate,
+        cardholderName: selectedPaymentMethod!.cardholderName,
+        isDefault: selectedPaymentMethod!.isDefault,
       );
 
       // Navigate to order confirmation
@@ -270,9 +270,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         context,
         MaterialPageRoute(
           builder: (context) => OrderConfirmationScreen(
-            orderId: orderId,
-            payment: payment,
             cart: widget.cart,
+            payment: payment,
+            orderNumber: orderId,
           ),
         ),
       );

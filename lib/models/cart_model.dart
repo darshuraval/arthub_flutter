@@ -13,7 +13,7 @@ class CartItem {
     required this.addedAt,
   });
 
-  double get totalPrice => product.discountedPrice * quantity;
+  double get totalPrice => (product.discountedPrice ?? 0.0) * quantity;
 
   Map<String, dynamic> toJson() {
     return {
@@ -60,9 +60,9 @@ class CartModel {
   });
 
   double get subtotal => items.fold(0, (sum, item) => sum + item.totalPrice);
-  double get shippingFee => 10.0; // Fixed shipping fee for now
+  double get shipping => 10.0; // Fixed shipping cost for demo
   double get tax => subtotal * 0.1; // 10% tax
-  double get total => subtotal + shippingFee + tax;
+  double get total => subtotal + shipping + tax;
   int get itemCount => items.fold(0, (sum, item) => sum + item.quantity);
 
   Map<String, dynamic> toJson() {

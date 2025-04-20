@@ -86,7 +86,7 @@ class OrderSummaryCard extends StatelessWidget {
             _buildSummaryRow(
               context,
               'Shipping',
-              '\$${cart.shippingFee.toStringAsFixed(2)}',
+              '\$${cart.shipping.toStringAsFixed(2)}',
             ),
             _buildSummaryRow(
               context,

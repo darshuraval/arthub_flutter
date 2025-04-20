@@ -1,39 +1,35 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:arthub_flutter/models/payment_model.dart';
 import 'package:arthub_flutter/config/app_styles.dart';
+import 'package:arthub_flutter/models/payment_model.dart';
 
-class AddPaymentMethodScreen extends StatefulWidget {
-  final PaymentModel? paymentMethod;
+class AddPaymentScreen extends StatefulWidget {
+  final PaymentModel? existingPayment;
 
-  const AddPaymentMethodScreen({
+  const AddPaymentScreen({
     Key? key,
-    this.paymentMethod,
+    this.existingPayment,
   }) : super(key: key);
 
   @override
-  State<AddPaymentMethodScreen> createState() => _AddPaymentMethodScreenState();
+  State<AddPaymentScreen> createState() => _AddPaymentScreenState();
 }
 
-class _AddPaymentMethodScreenState extends State<AddPaymentMethodScreen> {
+class _AddPaymentScreenState extends State<AddPaymentScreen> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _cardNumberController;
-  late TextEditingController _expiryController;
-  late TextEditingController _cvvController;
-  late TextEditingController _nameController;
-  bool _isDefault = false;
+  final _cardNumberController = TextEditingController();
+  final _expiryController = TextEditingController();
+  final _cvvController = TextEditingController();
+  final _nameController = TextEditingController();
   String _selectedCardType = 'Visa';
 
   @override
   void initState() {
     super.initState();
-    _cardNumberController = TextEditingController(text: widget.paymentMethod?.cardNumber);
-    _expiryController = TextEditingController(text: widget.paymentMethod?.expiryDate);
-    _cvvController = TextEditingController(text: widget.paymentMethod?.cvv);
-    _nameController = TextEditingController(text: widget.paymentMethod?.cardholderName);
-    _isDefault = widget.paymentMethod?.isDefault ?? false;
-    if (widget.paymentMethod != null) {
-      _selectedCardType = widget.paymentMethod!.cardType;
+    if (widget.existingPayment != null) {
+      _cardNumberController.text = widget.existingPayment!.cardNumber;
+      _expiryController.text = widget.existingPayment!.expiryDate;
+      _nameController.text = widget.existingPayment!.cardholderName;
+      _selectedCardType = widget.existingPayment!.cardType;
     }
   }
 
@@ -46,12 +42,27 @@ class _AddPaymentMethodScreenState extends State<AddPaymentMethodScreen> {
     super.dispose();
   }
 
+  void _savePaymentMethod() {
+    if (_formKey.currentState!.validate()) {
+      final payment = PaymentModel(
+        id: widget.existingPayment?.id ?? DateTime.now().toString(),
+        cardNumber: _cardNumberController.text,
+        expiryDate: _expiryController.text,
+        cardholderName: _nameController.text,
+        cardType: _selectedCardType,
+        isDefault: widget.existingPayment?.isDefault ?? false,
+      );
+
+      Navigator.pop(context, payment);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          widget.paymentMethod != null ? 'Edit Payment Method' : 'Add Payment Method',
+          widget.existingPayment != null ? 'Edit Payment Method' : 'Add Payment Method',
           style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -68,13 +79,7 @@ class _AddPaymentMethodScreenState extends State<AddPaymentMethodScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Payment Details',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-              const SizedBox(height: 24),
+              // Card Type Selection
               DropdownButtonFormField<String>(
                 value: _selectedCardType,
                 decoration: const InputDecoration(
@@ -94,6 +99,8 @@ class _AddPaymentMethodScreenState extends State<AddPaymentMethodScreen> {
                 },
               ),
               const SizedBox(height: 16),
+
+              // Card Number
               TextFormField(
                 controller: _cardNumberController,
                 decoration: const InputDecoration(
@@ -112,6 +119,8 @@ class _AddPaymentMethodScreenState extends State<AddPaymentMethodScreen> {
                 },
               ),
               const SizedBox(height: 16),
+
+              // Expiry Date
               TextFormField(
                 controller: _expiryController,
                 decoration: const InputDecoration(
@@ -129,6 +138,8 @@ class _AddPaymentMethodScreenState extends State<AddPaymentMethodScreen> {
                 },
               ),
               const SizedBox(height: 16),
+
+              // CVV
               TextFormField(
                 controller: _cvvController,
                 decoration: const InputDecoration(
@@ -148,6 +159,8 @@ class _AddPaymentMethodScreenState extends State<AddPaymentMethodScreen> {
                 },
               ),
               const SizedBox(height: 16),
+
+              // Cardholder Name
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(
@@ -162,12 +175,8 @@ class _AddPaymentMethodScreenState extends State<AddPaymentMethodScreen> {
                 },
               ),
               const SizedBox(height: 24),
-              SwitchListTile(
-                title: const Text('Set as default payment method'),
-                value: _isDefault,
-                onChanged: (value) => setState(() => _isDefault = value),
-              ),
-              const SizedBox(height: 32),
+
+              // Save Button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -180,7 +189,7 @@ class _AddPaymentMethodScreenState extends State<AddPaymentMethodScreen> {
                     ),
                   ),
                   child: Text(
-                    widget.paymentMethod != null ? 'Update Card' : 'Add Card',
+                    widget.existingPayment != null ? 'Update Card' : 'Add Card',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -193,67 +202,5 @@ class _AddPaymentMethodScreenState extends State<AddPaymentMethodScreen> {
         ),
       ),
     );
-  }
-
-  void _savePaymentMethod() {
-    if (_formKey.currentState!.validate()) {
-      final payment = PaymentModel(
-        id: widget.paymentMethod?.id ?? DateTime.now().toString(),
-        cardType: _selectedCardType,
-        cardNumber: _cardNumberController.text,
-        expiryDate: _expiryController.text,
-        cvv: _cvvController.text,
-        cardholderName: _nameController.text,
-        isDefault: _isDefault,
-      );
-
-      Navigator.pop(context, payment);
-    }
-  }
-}
-
-class _CardNumberFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    if (newValue.text.isEmpty) {
-      return newValue;
-    }
-
-    final text = newValue.text.replaceAll(' ', '');
-    final buffer = StringBuffer();
-    for (int i = 0; i < text.length; i++) {
-      if (i > 0 && i % 4 == 0) {
-        buffer.write(' ');
-      }
-      buffer.write(text[i]);
-    }
-    return TextEditingValue(
-      text: buffer.toString(),
-      selection: TextSelection.collapsed(offset: buffer.length),
-    );
-  }
-}
-
-class _ExpiryDateFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    if (newValue.text.isEmpty) {
-      return newValue;
-    }
-
-    final text = newValue.text.replaceAll('/', '');
-    if (text.length >= 2) {
-      return TextEditingValue(
-        text: '${text.substring(0, 2)}/${text.substring(2)}',
-        selection: TextSelection.collapsed(offset: text.length + 1),
-      );
-    }
-    return newValue;
   }
 } 

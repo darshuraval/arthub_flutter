@@ -10,6 +10,7 @@ import 'package:arthub_flutter/utils/sample_data.dart';
 import 'package:arthub_flutter/screens/product_details/product_details_screen.dart';
 import 'package:arthub_flutter/screens/category/all_categories_screen.dart';
 import 'package:arthub_flutter/screens/category/category_products_screen.dart';
+import 'package:arthub_flutter/screens/cart/cart_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   final Function(int) onTabChange;
@@ -43,8 +44,15 @@ class HomeScreen extends StatelessWidget {
             onPressed: () {},
           ),
           IconButton(
-            icon: const Icon(Icons.shopping_cart),
-            onPressed: () {},
+            icon: const Icon(Icons.shopping_cart_outlined),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const CartScreen(),
+                ),
+              );
+            },
           ),
         ],
       ),
