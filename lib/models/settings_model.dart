@@ -14,7 +14,18 @@ class SettingsModel extends ChangeNotifier {
 
   Set<String> get selectedCategories => _selectedCategories;
 
+  bool canToggleCategory(String category) {
+    if (_selectedCategories.contains(category)) {
+      // Don't allow unselecting if it would result in less than 2 categories
+      return _selectedCategories.length > 2;
+    }
+    // Allow selecting if less than 8 categories are selected
+    return _selectedCategories.length < 8;
+  }
+
   void toggleCategory(String category) {
+    if (!canToggleCategory(category)) return;
+
     if (_selectedCategories.contains(category)) {
       _selectedCategories.remove(category);
     } else {

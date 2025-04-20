@@ -138,8 +138,10 @@ class CategorySettingsScreen extends StatelessWidget {
 
                       return GestureDetector(
                         onTap: () {
-                          if (isSelected || canSelect) {
+                          if (settings.canToggleCategory(category['title']!)) {
                             settings.toggleCategory(category['title']!);
+                          } else if (isSelected) {
+                            _showMinimumSelectionDialog(context);
                           } else {
                             _showSelectionLimitDialog(context);
                           }
@@ -244,6 +246,24 @@ class CategorySettingsScreen extends StatelessWidget {
         title: const Text('Selection Limit Reached'),
         content: const Text(
           'You can select up to 8 categories. Please deselect a category before selecting a new one.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showMinimumSelectionDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Minimum Selection Required'),
+        content: const Text(
+          'You must keep at least 2 categories selected. Please select another category before removing this one.',
         ),
         actions: [
           TextButton(
