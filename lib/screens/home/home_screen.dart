@@ -8,12 +8,22 @@ import 'package:arthub_flutter/widgets/product_card.dart';
 import 'package:arthub_flutter/models/settings_model.dart';
 import 'package:arthub_flutter/utils/sample_data.dart';
 import 'package:arthub_flutter/screens/product_details/product_details_screen.dart';
+import 'package:arthub_flutter/screens/category/all_categories_screen.dart';
+import 'package:arthub_flutter/screens/category/category_products_screen.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  final Function(int) onTabChange;
+  
+  const HomeScreen({
+    Key? key,
+    required this.onTabChange,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    // Get the first 4 products for preview
+    final previewProducts = SampleData.products.take(4).toList();
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -52,10 +62,10 @@ class HomeScreen extends StatelessWidget {
             // Banner
             HomeBanner(
               backgroundImages: const [
-                'https://example.com/art1.jpg',
-                'https://example.com/art2.jpg',
+                'https://images.unsplash.com/photo-1577083552431-6e5fd01988d8?w=500&auto=format&fit=crop&q=60',
+                'https://images.unsplash.com/photo-1577083552431-6e5fd01988d8?w=500&auto=format&fit=crop&q=60',
               ],
-              onTap: () {},
+              onTap: () => onTabChange(1),
             ),
 
             // Categories
@@ -72,7 +82,14 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AllCategoriesScreen(),
+                        ),
+                      );
+                    },
                     child: Text(
                       'See all',
                       style: TextStyle(
@@ -105,7 +122,17 @@ class HomeScreen extends StatelessWidget {
                     return CategoryCard(
                       title: displayCategories[index]['title']!,
                       imageUrl: displayCategories[index]['image']!,
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CategoryProductsScreen(
+                              category: displayCategories[index]['title']!,
+                              imageUrl: displayCategories[index]['image']!,
+                            ),
+                          ),
+                        );
+                      },
                     );
                   },
                 );
@@ -126,7 +153,7 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () => onTabChange(1), // Switch to browse tab
                     child: Text(
                       'See all',
                       style: TextStyle(
@@ -148,9 +175,9 @@ class HomeScreen extends StatelessWidget {
                 crossAxisSpacing: 16,
                 childAspectRatio: 0.8,
               ),
-              itemCount: SampleData.products.length,
+              itemCount: previewProducts.length,
               itemBuilder: (context, index) {
-                final product = SampleData.products[index];
+                final product = previewProducts[index];
                 return ProductCard(
                   imageUrl: product.images[0],
                   title: product.title,
