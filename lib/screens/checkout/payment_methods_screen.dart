@@ -1,98 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:arthub_flutter/models/payment_model.dart';
 import 'package:arthub_flutter/screens/checkout/add_payment_method_screen.dart';
+import 'package:arthub_flutter/config/app_styles.dart';
 
 class PaymentMethodsScreen extends StatefulWidget {
-  const PaymentMethodsScreen({Key? key}) : super(key: key);
+  final List<PaymentModel> paymentMethods;
+  final PaymentModel? selectedPayment;
+
+  const PaymentMethodsScreen({
+    Key? key,
+    required this.paymentMethods,
+    this.selectedPayment,
+  }) : super(key: key);
 
   @override
   State<PaymentMethodsScreen> createState() => _PaymentMethodsScreenState();
 }
 
 class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
-  List<PaymentModel> _paymentMethods = [];
-
-  @override
-  void initState() {
-    super.initState();
-    // TODO: Load payment methods from storage/backend
-    _loadPaymentMethods();
-  }
-
-  void _loadPaymentMethods() {
-    // TODO: Implement loading payment methods from storage/backend
-    setState(() {
-      _paymentMethods = [];
-    });
-  }
-
-  void _addPaymentMethod() async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const AddPaymentMethodScreen(),
-      ),
-    );
-
-    if (result != null && result is PaymentModel) {
-      setState(() {
-        _paymentMethods.add(result);
-      });
-    }
-  }
-
-  void _editPaymentMethod(PaymentModel paymentMethod) async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => AddPaymentMethodScreen(
-          paymentMethod: paymentMethod,
-        ),
-      ),
-    );
-
-    if (result != null && result is PaymentModel) {
-      setState(() {
-        final index = _paymentMethods.indexWhere((pm) => pm.id == result.id);
-        if (index != -1) {
-          _paymentMethods[index] = result;
-        }
-      });
-    }
-  }
-
-  void _deletePaymentMethod(PaymentModel paymentMethod) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Payment Method'),
-        content: const Text('Are you sure you want to delete this payment method?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                _paymentMethods.removeWhere((pm) => pm.id == paymentMethod.id);
-              });
-              Navigator.pop(context);
-            },
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Payment Methods'),
+        title: const Text('Select Payment Method'),
+        backgroundColor: AppStyles.primaryColor,
       ),
-      body: _paymentMethods.isEmpty
+      body: widget.paymentMethods.isEmpty
           ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -112,64 +45,122 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
                   ),
                   const SizedBox(height: 24),
                   ElevatedButton(
-                    onPressed: _addPaymentMethod,
-                    child: const Text('Add Payment Method'),
+                    onPressed: () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AddPaymentMethodScreen(),
+                        ),
+                      );
+                      if (result != null && result is PaymentModel) {
+                        Navigator.pop(context, result);
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppStyles.primaryColor,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 16,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      'Add Payment Method',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ],
               ),
             )
           : ListView.builder(
-              itemCount: _paymentMethods.length,
+              padding: const EdgeInsets.all(16),
+              itemCount: widget.paymentMethods.length + 1, // +1 for the "Add New" button
               itemBuilder: (context, index) {
-                final paymentMethod = _paymentMethods[index];
+                if (index == widget.paymentMethods.length) {
+                  return _buildAddNewButton();
+                }
+
+                final payment = widget.paymentMethods[index];
+                final isSelected = widget.selectedPayment?.id == payment.id;
+
                 return Card(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  child: ListTile(
-                    leading: Icon(
-                      _getCardTypeIcon(paymentMethod.cardType),
-                      size: 32,
-                    ),
-                    title: Text(
-                      '•••• ${paymentMethod.cardNumber.substring(paymentMethod.cardNumber.length - 4)}',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    subtitle: Text(
-                      'Expires ${paymentMethod.expiryDate}',
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (paymentMethod.isDefault)
-                          const Padding(
-                            padding: EdgeInsets.only(right: 8),
-                            child: Chip(
-                              label: Text('Default'),
-                              backgroundColor: Colors.green,
-                              labelStyle: TextStyle(color: Colors.white),
-                            ),
+                  margin: const EdgeInsets.only(bottom: 16),
+                  child: InkWell(
+                    onTap: () => Navigator.pop(context, payment),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(_getCardTypeIcon(payment.cardType)),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  '•••• ${payment.cardNumber.substring(payment.cardNumber.length - 4)}',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              if (isSelected)
+                                const Icon(
+                                  Icons.check_circle,
+                                  color: Colors.green,
+                                ),
+                            ],
                           ),
-                        IconButton(
-                          icon: const Icon(Icons.edit),
-                          onPressed: () => _editPaymentMethod(paymentMethod),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete),
-                          onPressed: () => _deletePaymentMethod(paymentMethod),
-                        ),
-                      ],
+                          const SizedBox(height: 8),
+                          Text(payment.cardholderName),
+                          Text('Expires: ${payment.expiryDate}'),
+                        ],
+                      ),
                     ),
                   ),
                 );
               },
             ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _addPaymentMethod,
-        child: const Icon(Icons.add),
+    );
+  }
+
+  Widget _buildAddNewButton() {
+    return Card(
+      child: InkWell(
+        onTap: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const AddPaymentMethodScreen(),
+            ),
+          );
+          if (result != null && result is PaymentModel) {
+            Navigator.pop(context, result);
+          }
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              const Icon(Icons.add_circle_outline),
+              const SizedBox(width: 8),
+              Text(
+                'Add New Payment Method',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: AppStyles.primaryColor,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -180,7 +171,7 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
         return Icons.credit_card;
       case 'mastercard':
         return Icons.credit_card;
-      case 'amex':
+      case 'american express':
         return Icons.credit_card;
       default:
         return Icons.credit_card;

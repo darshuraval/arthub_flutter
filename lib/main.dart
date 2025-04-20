@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:arthub_flutter/config/app_styles.dart';
 import 'package:arthub_flutter/screens/main_screen.dart';
 import 'package:arthub_flutter/models/settings_model.dart';
+import 'package:arthub_flutter/providers/checkout_provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,8 +14,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => SettingsModel(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => SettingsModel()),
+        ChangeNotifierProvider(create: (_) => CheckoutProvider()),
+      ],
       child: MaterialApp(
         title: 'ArtHub',
         theme: ThemeData(

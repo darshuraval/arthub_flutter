@@ -4,11 +4,11 @@ import 'package:arthub_flutter/models/payment_model.dart';
 import 'package:arthub_flutter/config/app_styles.dart';
 
 class AddPaymentMethodScreen extends StatefulWidget {
-  final PaymentModel? paymentMethod;
+  final PaymentModel? payment;
 
   const AddPaymentMethodScreen({
     Key? key,
-    this.paymentMethod,
+    this.payment,
   }) : super(key: key);
 
   @override
@@ -27,13 +27,13 @@ class _AddPaymentMethodScreenState extends State<AddPaymentMethodScreen> {
   @override
   void initState() {
     super.initState();
-    _cardNumberController = TextEditingController(text: widget.paymentMethod?.cardNumber);
-    _expiryController = TextEditingController(text: widget.paymentMethod?.expiryDate);
-    _cvvController = TextEditingController(text: widget.paymentMethod?.cvv);
-    _nameController = TextEditingController(text: widget.paymentMethod?.cardholderName);
-    _isDefault = widget.paymentMethod?.isDefault ?? false;
-    if (widget.paymentMethod != null) {
-      _selectedCardType = widget.paymentMethod!.cardType;
+    _cardNumberController = TextEditingController(text: widget.payment?.cardNumber);
+    _expiryController = TextEditingController(text: widget.payment?.expiryDate);
+    _cvvController = TextEditingController(text: widget.payment?.cvv);
+    _nameController = TextEditingController(text: widget.payment?.cardholderName);
+    _isDefault = widget.payment?.isDefault ?? false;
+    if (widget.payment != null) {
+      _selectedCardType = widget.payment!.cardType;
     }
   }
 
@@ -51,7 +51,7 @@ class _AddPaymentMethodScreenState extends State<AddPaymentMethodScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          widget.paymentMethod != null ? 'Edit Payment Method' : 'Add Payment Method',
+          widget.payment != null ? 'Edit Payment Method' : 'Add Payment Method',
           style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -180,7 +180,7 @@ class _AddPaymentMethodScreenState extends State<AddPaymentMethodScreen> {
                     ),
                   ),
                   child: Text(
-                    widget.paymentMethod != null ? 'Update Card' : 'Add Card',
+                    widget.payment != null ? 'Update Card' : 'Add Card',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -198,15 +198,16 @@ class _AddPaymentMethodScreenState extends State<AddPaymentMethodScreen> {
   void _savePaymentMethod() {
     if (_formKey.currentState!.validate()) {
       final payment = PaymentModel(
-        id: widget.paymentMethod?.id ?? DateTime.now().toString(),
+        id: widget.payment?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
         cardType: _selectedCardType,
         cardNumber: _cardNumberController.text,
         expiryDate: _expiryController.text,
         cvv: _cvvController.text,
         cardholderName: _nameController.text,
         isDefault: _isDefault,
+        createdAt: widget.payment?.createdAt ?? DateTime.now(),
+        updatedAt: DateTime.now(),
       );
-
       Navigator.pop(context, payment);
     }
   }

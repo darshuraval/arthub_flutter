@@ -38,6 +38,18 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
+  void _navigateToPaymentMethods(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PaymentMethodsScreen(
+          paymentMethods: [], // TODO: Load from storage/backend
+          selectedPayment: null,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -134,14 +146,7 @@ class ProfileScreen extends StatelessWidget {
                   _buildProfileOption(
                     title: 'Payment Methods',
                     icon: Icons.payment,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const PaymentMethodsScreen(),
-                        ),
-                      );
-                    },
+                    onTap: () => _navigateToPaymentMethods(context),
                   ),
                   _buildProfileOption(
                     title: 'Shipping Addresses',

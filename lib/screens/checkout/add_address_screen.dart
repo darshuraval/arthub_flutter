@@ -17,37 +17,37 @@ class AddAddressScreen extends StatefulWidget {
 
 class _AddAddressScreenState extends State<AddAddressScreen> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _nameController;
-  late TextEditingController _streetController;
+  late TextEditingController _fullNameController;
+  late TextEditingController _streetAddressController;
   late TextEditingController _cityController;
   late TextEditingController _stateController;
   late TextEditingController _zipCodeController;
   late TextEditingController _countryController;
-  late TextEditingController _phoneController;
+  late TextEditingController _phoneNumberController;
   bool _isDefault = false;
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.address?.name);
-    _streetController = TextEditingController(text: widget.address?.street);
+    _fullNameController = TextEditingController(text: widget.address?.fullName);
+    _streetAddressController = TextEditingController(text: widget.address?.streetAddress);
     _cityController = TextEditingController(text: widget.address?.city);
     _stateController = TextEditingController(text: widget.address?.state);
     _zipCodeController = TextEditingController(text: widget.address?.zipCode);
     _countryController = TextEditingController(text: widget.address?.country);
-    _phoneController = TextEditingController(text: widget.address?.phoneNumber);
+    _phoneNumberController = TextEditingController(text: widget.address?.phoneNumber);
     _isDefault = widget.address?.isDefault ?? false;
   }
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _streetController.dispose();
+    _fullNameController.dispose();
+    _streetAddressController.dispose();
     _cityController.dispose();
     _stateController.dispose();
     _zipCodeController.dispose();
     _countryController.dispose();
-    _phoneController.dispose();
+    _phoneNumberController.dispose();
     super.dispose();
   }
 
@@ -72,14 +72,14 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
               ),
               const SizedBox(height: 24),
               _buildTextField(
-                controller: _nameController,
+                controller: _fullNameController,
                 label: 'Full Name',
                 validator: (value) =>
                     value?.isEmpty ?? true ? 'Please enter your name' : null,
               ),
               const SizedBox(height: 16),
               _buildTextField(
-                controller: _streetController,
+                controller: _streetAddressController,
                 label: 'Street Address',
                 validator: (value) =>
                     value?.isEmpty ?? true ? 'Please enter street address' : null,
@@ -130,7 +130,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
               ),
               const SizedBox(height: 16),
               _buildTextField(
-                controller: _phoneController,
+                controller: _phoneNumberController,
                 label: 'Phone Number',
                 keyboardType: TextInputType.phone,
                 validator: (value) =>
@@ -186,24 +186,22 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
   }
 
   void _saveAddress() {
-    if (!_formKey.currentState!.validate()) return;
-
-    final address = AddressModel(
-      id: widget.address?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
-      userId: 'user1', // TODO: Get from auth provider
-      name: _nameController.text,
-      street: _streetController.text,
-      city: _cityController.text,
-      state: _stateController.text,
-      zipCode: _zipCodeController.text,
-      country: _countryController.text,
-      phoneNumber: _phoneController.text,
-      isDefault: _isDefault,
-      addressType: widget.addressType,
-      createdAt: widget.address?.createdAt ?? DateTime.now(),
-      updatedAt: DateTime.now(),
-    );
-
-    Navigator.pop(context, address);
+    if (_formKey.currentState!.validate()) {
+      final address = AddressModel(
+        id: widget.address?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
+        userId: 'user1', // TODO: Get from auth provider
+        fullName: _fullNameController.text,
+        streetAddress: _streetAddressController.text,
+        city: _cityController.text,
+        state: _stateController.text,
+        zipCode: _zipCodeController.text,
+        country: _countryController.text,
+        phoneNumber: _phoneNumberController.text,
+        isDefault: _isDefault,
+        addressType: widget.addressType,
+        createdAt: widget.address?.createdAt ?? DateTime.now(),
+      );
+      Navigator.pop(context, address);
+    }
   }
 } 

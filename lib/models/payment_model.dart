@@ -55,6 +55,8 @@ class PaymentModel {
     this.updatedAt,
   });
 
+  String get lastFourDigits => cardNumber.substring(cardNumber.length - 4);
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
