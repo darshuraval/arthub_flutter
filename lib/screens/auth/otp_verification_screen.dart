@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:arthub_flutter/screens/auth/login_screen.dart';
 
 class OTPVerificationScreen extends StatefulWidget {
   final String phoneNumber;
@@ -117,6 +118,10 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
                   String otp = _controllers.map((c) => c.text).join();
                   if (otp.length == 6) {
                     // Handle OTP verification here
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const LoginScreen()),
+                    );
                   }
                 },
                 style: ElevatedButton.styleFrom(

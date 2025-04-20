@@ -24,44 +24,44 @@ class AuthInputField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(borderRadius),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.3),
-          width: 1,
-        ),
+    return TextFormField(
+      controller: controller,
+      obscureText: obscureText,
+      keyboardType: keyboardType,
+      style: const TextStyle(
+        color: Colors.white,
+        fontSize: 16,
       ),
-      child: TextFormField(
-        controller: controller,
-        obscureText: obscureText,
-        keyboardType: keyboardType,
-        style: const TextStyle(
-          color: Colors.white,
+      decoration: InputDecoration(
+        labelText: hintText, // floating label
+        floatingLabelBehavior: FloatingLabelBehavior.auto,
+        labelStyle: TextStyle(
+          color: Colors.white.withOpacity(0.7),
           fontSize: 16,
         ),
-        decoration: InputDecoration(
-          hintText: hintText,
-          hintStyle: TextStyle(
-            color: Colors.white.withOpacity(0.7),
-            fontSize: 16,
-          ),
-          border: InputBorder.none,
-          contentPadding: contentPadding ?? const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-          suffixIcon: suffixIcon != null
-              ? Theme(
-                  data: ThemeData(
-                    iconTheme: IconThemeData(
-                      color: Colors.white.withOpacity(0.7),
-                    ),
-                  ),
-                  child: suffixIcon!,
-                )
-              : null,
+        fillColor: Colors.black.withOpacity(0.1),
+        filled: true,
+        contentPadding: contentPadding ?? const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(borderRadius),
+          borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
         ),
-        validator: validator,
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(borderRadius),
+          borderSide: const BorderSide(color: Colors.white),
+        ),
+        suffixIcon: suffixIcon != null
+            ? Theme(
+                data: ThemeData(
+                  iconTheme: IconThemeData(
+                    color: Colors.white.withOpacity(0.1),
+                  ),
+                ),
+                child: suffixIcon!,
+              )
+            : null,
       ),
+      validator: validator,
     );
   }
-} 
+}

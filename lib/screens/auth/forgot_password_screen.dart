@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:arthub_flutter/screens/auth/otp_verification_screen.dart';
+import 'package:arthub_flutter/widgets/auth_input_field.dart';
+import 'package:arthub_flutter/widgets/custom_button.dart';
+import 'package:arthub_flutter/config/app_styles.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({Key? key}) : super(key: key);
@@ -21,7 +24,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF2D9B88),
+      backgroundColor: AppStyles.backgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -32,7 +35,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20.0),
+          padding: AppStyles.screenPadding,
           child: Form(
             key: _formKey,
             child: Column(
@@ -58,29 +61,20 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   ),
                 ),
                 const SizedBox(height: 40),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: TextFormField(
-                    controller: _emailPhoneController,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(
-                      hintText: 'Email ID/Phone Number',
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your email or phone number';
-                      }
-                      return null;
-                    },
-                  ),
+                AuthInputField(
+                  controller: _emailPhoneController,
+                  hintText: 'Email ID / Phone Number',
+                  keyboardType: TextInputType.emailAddress,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your email or phone number';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 40),
-                ElevatedButton(
+                CustomButton(
+                  text: 'Send Code',
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
                       Navigator.push(
@@ -93,21 +87,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       );
                     }
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                  ),
-                  child: const Text(
-                    'Send Code',
-                    style: TextStyle(
-                      color: Color(0xFF2D9B88),
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
                 ),
               ],
             ),
@@ -116,4 +95,4 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       ),
     );
   }
-} 
+}
