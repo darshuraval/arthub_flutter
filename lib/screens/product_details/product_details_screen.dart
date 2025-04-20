@@ -201,7 +201,7 @@ class ProductDetailsScreen extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                   ),
-                                  child: const Text('Follow'),
+                                  child: const Text('Follow', style: TextStyle(color: Colors.white),),
                                 ),
                               ],
                             ),
@@ -434,6 +434,7 @@ class ProductDetailsScreen extends StatelessWidget {
                 child: const Text(
                   'Add To Cart',
                   style: TextStyle(
+                    color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),

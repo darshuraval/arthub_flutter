@@ -57,63 +57,63 @@ class SampleData {
   static final List<Map<String, String>> categories = [
     {
       'title': 'Culture',
-      'image': 'https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?w=500&auto=format&fit=crop&q=60',
+      'image': 'https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3?w=500&auto=format&fit=crop&q=60',
     },
     {
       'title': 'Mughal',
-      'image': 'https://images.unsplash.com/photo-1577083552431-6e5fd01988d8?w=500&auto=format&fit=crop&q=60',
+      'image': 'https://images.unsplash.com/photo-1548013146-72479768bada?w=500&auto=format&fit=crop&q=60',
     },
     {
       'title': 'Still Life',
-      'image': 'https://images.unsplash.com/photo-1577083552431-6e5fd01988d8?w=500&auto=format&fit=crop&q=60',
+      'image': 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=500&auto=format&fit=crop&q=60',
     },
     {
       'title': 'Wildlife',
-      'image': 'https://images.unsplash.com/photo-1577083552431-6e5fd01988d8?w=500&auto=format&fit=crop&q=60',
+      'image': 'https://images.unsplash.com/photo-1546182990-dffeafbe841d?w=500&auto=format&fit=crop&q=60',
     },
     {
       'title': 'Persian',
-      'image': 'https://images.unsplash.com/photo-1577083552431-6e5fd01988d8?w=500&auto=format&fit=crop&q=60',
+      'image': 'https://images.unsplash.com/photo-1552083375-1447ce886485?w=500&auto=format&fit=crop&q=60',
     },
     {
       'title': 'Landscape',
-      'image': 'https://images.unsplash.com/photo-1577083552431-6e5fd01988d8?w=500&auto=format&fit=crop&q=60',
+      'image': 'https://images.unsplash.com/photo-1502472584811-0a2f2feb8968?w=500&auto=format&fit=crop&q=60',
     },
     {
       'title': 'Folk',
-      'image': 'https://images.unsplash.com/photo-1577083552431-6e5fd01988d8?w=500&auto=format&fit=crop&q=60',
+      'image': 'https://images.unsplash.com/photo-1569172122301-bc5008bc09c5?w=500&auto=format&fit=crop&q=60',
     },
     {
       'title': 'Hindu',
-      'image': 'https://images.unsplash.com/photo-1577083552431-6e5fd01988d8?w=500&auto=format&fit=crop&q=60',
+      'image': 'https://images.unsplash.com/photo-1542556398-95fb5b9f9b68?w=500&auto=format&fit=crop&q=60',
     },
     {
       'title': 'Modern Art',
-      'image': 'https://images.unsplash.com/photo-1577083552431-6e5fd01988d8?w=500&auto=format&fit=crop&q=60',
+      'image': 'https://images.unsplash.com/photo-1536924940846-227afb31e2a5?w=500&auto=format&fit=crop&q=60',
     },
     {
       'title': 'Abstract',
-      'image': 'https://images.unsplash.com/photo-1577083552431-6e5fd01988d8?w=500&auto=format&fit=crop&q=60',
+      'image': 'https://images.unsplash.com/photo-1573521193826-58c7dc2e13e3?w=500&auto=format&fit=crop&q=60',
     },
     {
       'title': 'Portrait',
-      'image': 'https://images.unsplash.com/photo-1577083552431-6e5fd01988d8?w=500&auto=format&fit=crop&q=60',
+      'image': 'https://images.unsplash.com/photo-1578926288207-a90a5366759d?w=500&auto=format&fit=crop&q=60',
     },
     {
       'title': 'Religious',
-      'image': 'https://images.unsplash.com/photo-1577083552431-6e5fd01988d8?w=500&auto=format&fit=crop&q=60',
+      'image': 'https://images.unsplash.com/photo-1544289592-0c3a631b1010?w=500&auto=format&fit=crop&q=60',
     },
     {
       'title': 'Contemporary',
-      'image': 'https://images.unsplash.com/photo-1577083552431-6e5fd01988d8?w=500&auto=format&fit=crop&q=60',
+      'image': 'https://images.unsplash.com/photo-1501084817091-a4f3d1d19e07?w=500&auto=format&fit=crop&q=60',
     },
     {
       'title': 'Traditional',
-      'image': 'https://images.unsplash.com/photo-1577083552431-6e5fd01988d8?w=500&auto=format&fit=crop&q=60',
+      'image': 'https://images.unsplash.com/photo-1578321272176-b7bbc0679853?w=500&auto=format&fit=crop&q=60',
     },
     {
       'title': 'Digital',
-      'image': 'https://images.unsplash.com/photo-1577083552431-6e5fd01988d8?w=500&auto=format&fit=crop&q=60',
+      'image': 'https://images.unsplash.com/photo-1563089145-599997674d42?w=500&auto=format&fit=crop&q=60',
     },
   ];
 
@@ -126,8 +126,8 @@ class SampleData {
       sellerId: users[0].id,
       sellerName: users[0].name,
       images: [
-        'https://images.unsplash.com/photo-1577083552431-6e5fd01988d8?w=500&auto=format&fit=crop&q=60',
-        'https://images.unsplash.com/photo-1577083552431-6e5fd01988d8?w=500&auto=format&fit=crop&q=60',
+        'https://images.unsplash.com/photo-1578926288207-a90a5366759d?w=500&auto=format&fit=crop&q=60',
+        'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=500&auto=format&fit=crop&q=60',
       ],
       originalPrice: 100.0,
       discountedPrice: 50.0,
@@ -159,8 +159,8 @@ class SampleData {
       sellerId: users[1].id,
       sellerName: users[1].name,
       images: [
-        'https://images.unsplash.com/photo-1577083552431-6e5fd01988d8?w=500&auto=format&fit=crop&q=60',
-        'https://images.unsplash.com/photo-1577083552431-6e5fd01988d8?w=500&auto=format&fit=crop&q=60',
+        'https://images.unsplash.com/photo-1501084817091-a4f3d1d19e07?w=500&auto=format&fit=crop&q=60',
+        'https://images.unsplash.com/photo-1549887534-1541e9326642?w=500&auto=format&fit=crop&q=60',
       ],
       originalPrice: 100.0,
       discountedPrice: 75.0,
@@ -193,7 +193,7 @@ class SampleData {
       sellerId: users[0].id,
       sellerName: users[0].name,
       images: [
-        'https://images.unsplash.com/photo-1577083552431-6e5fd01988d8?w=500&auto=format&fit=crop&q=60',
+        'https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3?w=500&auto=format&fit=crop&q=60',
         'https://images.unsplash.com/photo-1577083552431-6e5fd01988d8?w=500&auto=format&fit=crop&q=60',
       ],
       originalPrice: 150.0,
