@@ -1,22 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:arthub_flutter/config/app_styles.dart';
+import 'package:arthub_flutter/widgets/price_display.dart';
 
 class ProductCard extends StatelessWidget {
   final String imageUrl;
   final String title;
-  final double price;
+  final double originalPrice;
+  final double? discountedPrice;
   final VoidCallback onTap;
-  final double width;
-  final double height;
 
   const ProductCard({
     Key? key,
     required this.imageUrl,
     required this.title,
-    required this.price,
+    required this.originalPrice,
+    this.discountedPrice,
     required this.onTap,
-    this.width = 180,
-    this.height = 220,
   }) : super(key: key);
 
   @override
@@ -24,9 +22,6 @@ class ProductCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: width,
-        height: height,
-        margin: const EdgeInsets.only(right: 8, bottom: 8),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
@@ -43,27 +38,49 @@ class ProductCard extends StatelessWidget {
           children: [
             // Image
             Expanded(
+              flex: 3,
               child: ClipRRect(
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
                 child: Image.network(
                   imageUrl,
                   width: double.infinity,
                   fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: Colors.grey[200],
+                      child: const Center(
+                        child: Icon(Icons.image_not_supported, color: Colors.grey),
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
-            // Title
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black87,
+            // Title and Price
+            Expanded(
+              flex: 1,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    PriceDisplay(
+                      originalPrice: originalPrice,
+                      discountedPrice: discountedPrice,
+                    ),
+                  ],
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
