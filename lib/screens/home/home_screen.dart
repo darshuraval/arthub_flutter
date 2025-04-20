@@ -7,6 +7,7 @@ import 'package:arthub_flutter/widgets/category_card.dart';
 import 'package:arthub_flutter/widgets/product_card.dart';
 import 'package:arthub_flutter/models/settings_model.dart';
 import 'package:arthub_flutter/utils/sample_data.dart';
+import 'package:arthub_flutter/screens/product_details/product_details_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -151,11 +152,18 @@ class HomeScreen extends StatelessWidget {
               itemBuilder: (context, index) {
                 final product = SampleData.products[index];
                 return ProductCard(
-                  imageUrl: product['image'] as String,
-                  title: product['title'] as String,
-                  originalPrice: product['originalPrice'] as double,
-                  discountedPrice: product['discountedPrice'] as double?,
-                  onTap: () {},
+                  imageUrl: product.images[0],
+                  title: product.title,
+                  originalPrice: product.originalPrice,
+                  discountedPrice: product.discountedPrice,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProductDetailsScreen(product: product),
+                      ),
+                    );
+                  },
                 );
               },
             ),
