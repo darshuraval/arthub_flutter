@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:arthub_flutter/screens/splash/splash_screen.dart';
-import 'package:arthub_flutter/screens/home/home_screen.dart';
-import 'package:arthub_flutter/screens/add_product_screen.dart';
+import 'package:arthub_flutter/config/app_styles.dart';
+import 'package:arthub_flutter/screens/main_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,17 +13,16 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'ArtHub',
-      debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primaryColor: const Color(0xFF2D9B88),
-        colorScheme: ColorScheme.fromSwatch().copyWith(
-          primary: const Color(0xFF2D9B88),
-          secondary: const Color(0xFF2D9B88),
+        primaryColor: AppStyles.primaryColor,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: AppStyles.primaryColor,
         ),
+        useMaterial3: true,
+        scaffoldBackgroundColor: Colors.white,
       ),
-      // home: const SplashScreen(),
-      home: const HomeScreen(),
-      // home: const AddProductScreen(),
+      home: const MainScreen(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
