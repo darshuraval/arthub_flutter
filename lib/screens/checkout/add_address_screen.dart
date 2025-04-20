@@ -19,6 +19,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _fullNameController;
   late TextEditingController _streetAddressController;
+  late TextEditingController _apartmentController;
   late TextEditingController _cityController;
   late TextEditingController _stateController;
   late TextEditingController _zipCodeController;
@@ -31,6 +32,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
     super.initState();
     _fullNameController = TextEditingController(text: widget.address?.fullName);
     _streetAddressController = TextEditingController(text: widget.address?.streetAddress);
+    _apartmentController = TextEditingController(text: widget.address?.apartment);
     _cityController = TextEditingController(text: widget.address?.city);
     _stateController = TextEditingController(text: widget.address?.state);
     _zipCodeController = TextEditingController(text: widget.address?.zipCode);
@@ -43,6 +45,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
   void dispose() {
     _fullNameController.dispose();
     _streetAddressController.dispose();
+    _apartmentController.dispose();
     _cityController.dispose();
     _stateController.dispose();
     _zipCodeController.dispose();
@@ -83,6 +86,11 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                 label: 'Street Address',
                 validator: (value) =>
                     value?.isEmpty ?? true ? 'Please enter street address' : null,
+              ),
+              const SizedBox(height: 16),
+              _buildTextField(
+                controller: _apartmentController,
+                label: 'Apartment/Suite (Optional)',
               ),
               const SizedBox(height: 16),
               Row(
@@ -192,6 +200,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
         userId: 'user1', // TODO: Get from auth provider
         fullName: _fullNameController.text,
         streetAddress: _streetAddressController.text,
+        apartment: _apartmentController.text,
         city: _cityController.text,
         state: _stateController.text,
         zipCode: _zipCodeController.text,
@@ -200,6 +209,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
         isDefault: _isDefault,
         addressType: widget.addressType,
         createdAt: widget.address?.createdAt ?? DateTime.now(),
+        updatedAt: DateTime.now(),
       );
       Navigator.pop(context, address);
     }

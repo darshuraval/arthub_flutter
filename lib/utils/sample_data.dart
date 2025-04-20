@@ -1,6 +1,8 @@
 import 'package:arthub_flutter/models/user_model.dart';
 import 'package:arthub_flutter/models/product_model.dart';
 import 'package:arthub_flutter/models/order_model.dart';
+import 'package:arthub_flutter/models/payment_model.dart';
+import 'package:arthub_flutter/models/address_model.dart';
 
 class SampleData {
   // Sample Users
@@ -520,47 +522,195 @@ class SampleData {
     ),
   ];
 
-  // Sample Orders
-  static final List<OrderModel> orders = [
-    OrderModel(
-      id: 'order1',
-      buyerId: 'user2',
-      sellerId: 'user1',
-      productId: 'prod1',
-      productTitle: 'Old Mans',
-      productImage: 'https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?w=500&auto=format&fit=crop&q=60',
-      amount: 25.0,
-      status: OrderStatus.delivered,
-      orderDate: DateTime(2024, 2, 1),
-      payment: PaymentModel(
-        id: 'pay1',
-        orderId: 'order1',
-        userId: 'user2',
-        amount: 25.0,
-        status: PaymentStatus.completed,
-        paymentMethod: 'Credit Card',
-        timestamp: DateTime(2024, 2, 1),
-        transactionId: 'tx_123456',
-        paymentDetails: {
-          'cardType': 'Visa',
-          'last4': '4242',
-        },
-      ),
-      shippingAddress: {
-        'name': 'Sarah Johnson',
-        'street': '789 Art Collector Ave',
-        'city': 'Creative City',
-        'state': 'AC',
-        'zipCode': '12345',
-        'country': 'USA',
-      },
-      trackingNumber: 'TRK123456789',
-      estimatedDeliveryDate: DateTime(2024, 2, 7),
-      deliveredDate: DateTime(2024, 2, 6),
-      shippingFee: 15.0,
-      taxAmount: 2.5,
+  // Sample Payment Methods
+  static final List<PaymentModel> samplePaymentMethods = [
+    PaymentModel(
+      id: '1',
+      cardType: 'Visa',
+      cardNumber: '4242424242424242',
+      expiryDate: '12/25',
+      cvv: '123',
+      cardholderName: 'John Doe',
+      isDefault: true,
+      paymentMethod: PaymentMethod.creditCard,
+      createdAt: DateTime.now().subtract(const Duration(days: 30)),
+      updatedAt: DateTime.now().subtract(const Duration(days: 30)),
     ),
-    // Add more sample orders...
+    PaymentModel(
+      id: '2',
+      cardType: 'Mastercard',
+      cardNumber: '5555555555554444',
+      expiryDate: '10/24',
+      cvv: '456',
+      cardholderName: 'John Doe',
+      isDefault: false,
+      paymentMethod: PaymentMethod.debitCard,
+      createdAt: DateTime.now().subtract(const Duration(days: 15)),
+      updatedAt: DateTime.now().subtract(const Duration(days: 15)),
+    ),
+  ];
+
+  // Sample Addresses
+  static final List<AddressModel> sampleAddresses = [
+    AddressModel(
+      id: '1',
+      userId: 'user2',
+      fullName: 'John Doe',
+      streetAddress: '123 Main Street',
+      apartment: 'Apt 4B',
+      city: 'New York',
+      state: 'NY',
+      zipCode: '10001',
+      country: 'United States',
+      phoneNumber: '+1 234 567 8900',
+      addressType: 'Home',
+      isDefault: true,
+      createdAt: DateTime.now().subtract(const Duration(days: 60)),
+      updatedAt: DateTime.now().subtract(const Duration(days: 60)),
+    ),
+    AddressModel(
+      id: '2',
+      userId: 'user2',
+      fullName: 'John Doe',
+      streetAddress: '456 Park Avenue',
+      apartment: 'Suite 789',
+      city: 'Los Angeles',
+      state: 'CA',
+      zipCode: '90001',
+      country: 'United States',
+      phoneNumber: '+1 234 567 8901',
+      addressType: 'Office',
+      isDefault: false,
+      createdAt: DateTime.now().subtract(const Duration(days: 30)),
+      updatedAt: DateTime.now().subtract(const Duration(days: 30)),
+    ),
+  ];
+
+  // Sample Orders
+  static final List<OrderModel> sampleOrders = [
+    OrderModel(
+      id: '1',
+      userId: 'user2',
+      items: [
+        OrderItem(
+          productId: 'prod1',
+          quantity: 1,
+          price: 299.99,
+        ),
+        OrderItem(
+          productId: 'prod2',
+          quantity: 2,
+          price: 199.99,
+        ),
+      ],
+      totalAmount: 699.97,
+      status: OrderStatus.delivered,
+      shippingAddress: AddressModel(
+        id: '1',
+        userId: 'user2',
+        fullName: 'John Doe',
+        streetAddress: '123 Main Street',
+        apartment: 'Apt 4B',
+        city: 'New York',
+        state: 'NY',
+        zipCode: '10001',
+        country: 'United States',
+        phoneNumber: '+1 234 567 8900',
+        addressType: 'Home',
+        isDefault: true,
+        createdAt: DateTime.now().subtract(const Duration(days: 60)),
+        updatedAt: DateTime.now().subtract(const Duration(days: 60)),
+      ),
+      billingAddress: AddressModel(
+        id: '1',
+        userId: 'user2',
+        fullName: 'John Doe',
+        streetAddress: '123 Main Street',
+        apartment: 'Apt 4B',
+        city: 'New York',
+        state: 'NY',
+        zipCode: '10001',
+        country: 'United States',
+        phoneNumber: '+1 234 567 8900',
+        addressType: 'Home',
+        isDefault: true,
+        createdAt: DateTime.now().subtract(const Duration(days: 60)),
+        updatedAt: DateTime.now().subtract(const Duration(days: 60)),
+      ),
+      paymentMethod: PaymentModel(
+        id: '1',
+        cardType: 'Visa',
+        cardNumber: '4242424242424242',
+        expiryDate: '12/25',
+        cvv: '123',
+        cardholderName: 'John Doe',
+        isDefault: true,
+        paymentMethod: PaymentMethod.creditCard,
+        createdAt: DateTime.now().subtract(const Duration(days: 30)),
+        updatedAt: DateTime.now().subtract(const Duration(days: 30)),
+      ),
+      createdAt: DateTime.now().subtract(const Duration(days: 15)),
+      updatedAt: DateTime.now().subtract(const Duration(days: 10)),
+    ),
+    OrderModel(
+      id: '2',
+      userId: 'user2',
+      items: [
+        OrderItem(
+          productId: 'prod3',
+          quantity: 1,
+          price: 149.99,
+        ),
+      ],
+      totalAmount: 149.99,
+      status: OrderStatus.processing,
+      shippingAddress: AddressModel(
+        id: '2',
+        userId: 'user2',
+        fullName: 'John Doe',
+        streetAddress: '456 Park Avenue',
+        apartment: 'Suite 789',
+        city: 'Los Angeles',
+        state: 'CA',
+        zipCode: '90001',
+        country: 'United States',
+        phoneNumber: '+1 234 567 8901',
+        addressType: 'Office',
+        isDefault: false,
+        createdAt: DateTime.now().subtract(const Duration(days: 30)),
+        updatedAt: DateTime.now().subtract(const Duration(days: 30)),
+      ),
+      billingAddress: AddressModel(
+        id: '2',
+        userId: 'user2',
+        fullName: 'John Doe',
+        streetAddress: '456 Park Avenue',
+        apartment: 'Suite 789',
+        city: 'Los Angeles',
+        state: 'CA',
+        zipCode: '90001',
+        country: 'United States',
+        phoneNumber: '+1 234 567 8901',
+        addressType: 'Office',
+        isDefault: false,
+        createdAt: DateTime.now().subtract(const Duration(days: 30)),
+        updatedAt: DateTime.now().subtract(const Duration(days: 30)),
+      ),
+      paymentMethod: PaymentModel(
+        id: '2',
+        cardType: 'Mastercard',
+        cardNumber: '5555555555554444',
+        expiryDate: '10/24',
+        cvv: '456',
+        cardholderName: 'John Doe',
+        isDefault: false,
+        paymentMethod: PaymentMethod.debitCard,
+        createdAt: DateTime.now().subtract(const Duration(days: 15)),
+        updatedAt: DateTime.now().subtract(const Duration(days: 15)),
+      ),
+      createdAt: DateTime.now().subtract(const Duration(days: 5)),
+      updatedAt: DateTime.now().subtract(const Duration(days: 5)),
+    ),
   ];
 
   // Helper methods
