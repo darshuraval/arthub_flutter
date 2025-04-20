@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:arthub_flutter/config/app_styles.dart';
 import 'package:arthub_flutter/widgets/custom_search_bar.dart';
 import 'package:arthub_flutter/widgets/home_banner.dart';
 import 'package:arthub_flutter/widgets/category_card.dart';
 import 'package:arthub_flutter/widgets/product_card.dart';
+import 'package:arthub_flutter/models/settings_model.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -42,6 +44,21 @@ class HomeScreen extends StatelessWidget {
       {
         'title': 'Hindu',
         'image': 'https://example.com/images/hindu.jpg',
+      },
+    ];
+
+    final List<Map<String, dynamic>> products = [
+      {
+        'id': '1',
+        'title': 'Beautiful Artwork 1',
+        'price': 299.99,
+        'image': 'https://example.com/product1.jpg'
+      },
+      {
+        'id': '2',
+        'title': 'Beautiful Artwork 2',
+        'price': 399.99,
+        'image': 'https://example.com/product2.jpg'
       },
     ];
 
@@ -115,22 +132,30 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
             ),
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 16,
-                childAspectRatio: 0.8,
-              ),
-              itemCount: 8,
-              itemBuilder: (context, index) {
-                return CategoryCard(
-                  title: categories[index]['title']!,
-                  imageUrl: categories[index]['image']!,
-                  onTap: () {},
+            Consumer<SettingsModel>(
+              builder: (context, settings, child) {
+                final displayCategories = categories.where(
+                  (category) => settings.isCategorySelected(category['title']!)
+                ).toList();
+
+                return GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  padding: EdgeInsets.zero,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 4,
+                    mainAxisSpacing: 0,
+                    crossAxisSpacing: 0,
+                    childAspectRatio: 0.8,
+                  ),
+                  itemCount: displayCategories.length,
+                  itemBuilder: (context, index) {
+                    return CategoryCard(
+                      title: displayCategories[index]['title']!,
+                      imageUrl: displayCategories[index]['image']!,
+                      onTap: () {},
+                    );
+                  },
                 );
               },
             ),
@@ -161,26 +186,26 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(
-              height: 280,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                children: [
-                  ProductCard(
-                    imageUrl: 'https://example.com/product1.jpg',
-                    title: 'Beautiful Artwork 1',
-                    price: 299.99,
-                    onTap: () {},
-                  ),
-                  ProductCard(
-                    imageUrl: 'https://example.com/product2.jpg',
-                    title: 'Beautiful Artwork 2',
-                    price: 399.99,
-                    onTap: () {},
-                  ),
-                ],
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: 8,
+                crossAxisSpacing: 8,
+                childAspectRatio: 0.85,
               ),
+              itemCount: products.length,
+              itemBuilder: (context, index) {
+                final product = products[index];
+                return ProductCard(
+                  imageUrl: product['image'] as String,
+                  title: product['title'] as String,
+                  price: product['price'] as double,
+                  onTap: () {},
+                );
+              },
             ),
             const SizedBox(height: 16),
           ],

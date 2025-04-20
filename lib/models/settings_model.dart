@@ -1,20 +1,44 @@
 import 'package:flutter/material.dart';
 
 class SettingsModel extends ChangeNotifier {
-  final Set<String> _selectedProductIds = <String>{};
+  final Set<String> _selectedCategories = {
+    'Culture',
+    'Mughal',
+    'Still Life',
+    'Wildlife',
+    'Persian',
+    'Landscape',
+    'Folk',
+    'Hindu',
+  };
 
-  Set<String> get selectedProductIds => _selectedProductIds;
+  Set<String> get selectedCategories => _selectedCategories;
 
-  void toggleProduct(String productId) {
-    if (_selectedProductIds.contains(productId)) {
-      _selectedProductIds.remove(productId);
+  void toggleCategory(String category) {
+    if (_selectedCategories.contains(category)) {
+      _selectedCategories.remove(category);
     } else {
-      _selectedProductIds.add(productId);
+      _selectedCategories.add(category);
     }
     notifyListeners();
   }
 
-  bool isProductSelected(String productId) {
-    return _selectedProductIds.contains(productId);
+  bool isCategorySelected(String category) {
+    return _selectedCategories.contains(category);
+  }
+
+  void resetToDefault() {
+    _selectedCategories.clear();
+    _selectedCategories.addAll([
+      'Culture',
+      'Mughal',
+      'Still Life',
+      'Wildlife',
+      'Persian',
+      'Landscape',
+      'Folk',
+      'Hindu',
+    ]);
+    notifyListeners();
   }
 } 

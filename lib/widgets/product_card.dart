@@ -15,8 +15,8 @@ class ProductCard extends StatelessWidget {
     required this.title,
     required this.price,
     required this.onTap,
-    this.width = 200,
-    this.height = 250,
+    this.width = 180,
+    this.height = 220,
   }) : super(key: key);
 
   @override
@@ -26,14 +26,14 @@ class ProductCard extends StatelessWidget {
       child: Container(
         width: width,
         height: height,
-        margin: const EdgeInsets.only(right: 16),
+        margin: const EdgeInsets.only(right: 8, bottom: 8),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(15),
+          borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 10,
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 4,
               offset: const Offset(0, 2),
             ),
           ],
@@ -44,7 +44,7 @@ class ProductCard extends StatelessWidget {
             // Image
             Expanded(
               child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
                 child: Image.network(
                   imageUrl,
                   width: double.infinity,
@@ -52,31 +52,18 @@ class ProductCard extends StatelessWidget {
                 ),
               ),
             ),
-            // Details
+            // Title
             Padding(
               padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '\$${price.toStringAsFixed(2)}',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: AppStyles.primaryColor,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
