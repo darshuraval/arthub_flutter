@@ -4,7 +4,7 @@ import 'package:arthub_flutter/screens/auth/forgot_password_screen.dart';
 import 'package:arthub_flutter/widgets/auth_input_field.dart';
 import 'package:arthub_flutter/widgets/custom_button.dart';
 import 'package:arthub_flutter/config/app_styles.dart';
-import 'package:arthub_flutter/screens/home/home_screen.dart';
+import 'package:arthub_flutter/screens/main_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -110,7 +110,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       // Handle login logic here
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const HomeScreen()),
+                        MaterialPageRoute(builder: (context) => const MainScreen()),
                       );
                     }
                   },
