@@ -1,0 +1,69 @@
+{
+  "project_info": {
+    "project_number": "319340216446",
+    "firebase_url": "https://arthub-d3e9c-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "arthub-d3e9c",
+    "storage_bucket": "arthub-d3e9c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:319340216446:android:a1b3f413627b914e90982f",
+        "android_client_info": {
+          "package_name": "com.example.arthub"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "319340216446-qc63ck6c8a139e7c91q1128d6bgpk56c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD0ZgNd0ngfM1PIEurUBKHId0vizNBjb0M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "319340216446-qc63ck6c8a139e7c91q1128d6bgpk56c.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:319340216446:android:27cfa771c19046a790982f",
+        "android_client_info": {
+          "package_name": "com.example.firebasedatashow"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "319340216446-qc63ck6c8a139e7c91q1128d6bgpk56c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD0ZgNd0ngfM1PIEurUBKHId0vizNBjb0M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "319340216446-qc63ck6c8a139e7c91q1128d6bgpk56c.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
