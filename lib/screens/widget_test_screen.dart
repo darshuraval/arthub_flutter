@@ -412,19 +412,16 @@ class _WidgetTestScreenState extends State<WidgetTestScreen> {
             const SizedBox(height: 16),
             // Credit Card Widget
             CreditCardWidget(
-              holderName: 'Jane Doe',
-              cardNumber: '5555555555554444',
-              expiryDate: '11/26',
-              cvc: '456',
-              cardType: 'mastercard',
+              holderName: 'Darshan Raval',
+              cardNumber: '550122334487',
+              expiryDate: '16/23',
+              cvc: '333',
+              cardType: 'visa',
               isSelected: true,
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Credit card tapped!')),
-                );
-              },
+              onTap: () {},
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
+            const CreditCardCarouselIndicator(count: 3, currentIndex: 0),
             // Promo Code Input
             PromoCodeInput(
               onApplyCode: (code) {
@@ -656,6 +653,37 @@ class _WidgetTestScreenState extends State<WidgetTestScreen> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class CreditCardCarouselIndicator extends StatelessWidget {
+  final int count;
+  final int currentIndex;
+
+  const CreditCardCarouselIndicator({
+    Key? key,
+    required this.count,
+    required this.currentIndex,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(count, (index) {
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: index == currentIndex
+                ? const Color(0xFF2D9B88)
+                : Colors.grey[300],
+          ),
+        );
+      }),
     );
   }
 } 
