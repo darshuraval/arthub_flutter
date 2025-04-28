@@ -24,6 +24,14 @@ import 'package:arthub_flutter/widgets/product_price_row.dart';
 import 'package:arthub_flutter/widgets/tag_chip.dart';
 import 'package:arthub_flutter/widgets/store_header.dart';
 import 'package:arthub_flutter/widgets/empty_state.dart';
+import 'package:arthub_flutter/widgets/product_image_carousel.dart';
+import 'package:arthub_flutter/widgets/artist_info_row.dart';
+import 'package:arthub_flutter/widgets/product_description.dart';
+import 'package:arthub_flutter/widgets/product_details_table.dart';
+import 'package:arthub_flutter/widgets/additional_details_row.dart';
+import 'package:arthub_flutter/widgets/credit_card_carousel_indicator.dart';
+import 'package:arthub_flutter/screens/add_address_screen.dart';
+import 'package:arthub_flutter/screens/my_store_screen.dart';
 
 class WidgetTestScreen extends StatefulWidget {
   const WidgetTestScreen({Key? key}) : super(key: key);
@@ -79,6 +87,18 @@ class _WidgetTestScreenState extends State<WidgetTestScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            CustomButton(text: 'My Store', 
+              onPressed: () => {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => MyStoreScreen()))
+              }
+            ),
+            
+            CustomButton(text: 'Add Address', 
+              onPressed: () => {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => AddAddressScreen()))
+              }
+            ),
+            
             // Auth Input Field Section
             const Text(
               'Auth Input Field Variations',
@@ -650,40 +670,56 @@ class _WidgetTestScreenState extends State<WidgetTestScreen> {
                 const SnackBar(content: Text('Add Product tapped')),
               ),
             ),
+
+            const SizedBox(height: 32),
+            const Text(
+              'Product Details Demo',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            ProductImageCarousel(
+              imageUrls: [
+                'https://picsum.photos/600/300?random=1',
+                'https://picsum.photos/600/300?random=2',
+                'https://picsum.photos/600/300?random=3',
+              ],
+              currentIndex: 0,
+            ),
+            const SizedBox(height: 16),
+            Text('Old Mans', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
+            Row(
+              children: [
+                Text('\$25', style: TextStyle(color: Color(0xFF2D9B88), fontWeight: FontWeight.bold, fontSize: 18)),
+                const SizedBox(width: 8),
+                Text('\$50', style: TextStyle(decoration: TextDecoration.lineThrough, color: Colors.grey, fontSize: 16)),
+                const SizedBox(width: 8),
+                TagChip(label: '50% off'),
+              ],
+            ),
+            const SizedBox(height: 8),
+            ArtistInfoRow(name: 'Darshan Raval', onFollow: () => ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Follow tapped')),
+            )),
+            const SizedBox(height: 16),
+            ProductDescription(description: 'Old Mans is a masterpiece by Darshan Raval. It captures the essence of a quiet village scene.'),
+            const SizedBox(height: 16),
+            ProductDetailsTable(details: {
+              'Price': '\$25',
+              'Category': 'Painting',
+              'Artist': 'Darshan Raval',
+              'Extra': '50% Off'
+            }),
+            // const SizedBox(height: 32),
+            // const Text('Add Address Screen Demo', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            // AddAddressScreen(),
+
+            // const SizedBox(height: 32),
+            // const Text('My Store Screen Demo', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            // MyStoreScreen(),
           ],
         ),
+        
       ),
     );
   }
 }
-
-class CreditCardCarouselIndicator extends StatelessWidget {
-  final int count;
-  final int currentIndex;
-
-  const CreditCardCarouselIndicator({
-    Key? key,
-    required this.count,
-    required this.currentIndex,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(count, (index) {
-        return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 4),
-          width: 8,
-          height: 8,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: index == currentIndex
-                ? const Color(0xFF2D9B88)
-                : Colors.grey[300],
-          ),
-        );
-      }),
-    );
-  }
-} 

@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:arthub_flutter/config/app_styles.dart';
-import 'package:arthub_flutter/screens/widget_test_screen.dart';
+import 'package:arthub_flutter/screens/splash/splash_screen.dart';
+import 'package:arthub_flutter/screens/auth/login_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:arthub_flutter/firebase_options.dart';
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
-void main() {
   runApp(const MyApp());
 }
 
@@ -22,7 +29,8 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         scaffoldBackgroundColor: Colors.white,
       ),
-      home: const WidgetTestScreen(),
+      // home: const SplashScreen(),
+      home: const LoginScreen(),
       debugShowCheckedModeBanner: false,
     );
   }
