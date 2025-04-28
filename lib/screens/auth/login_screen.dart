@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:arthub_flutter/screens/auth/register_screen.dart';
 import 'package:arthub_flutter/screens/auth/forgot_password_screen.dart';
+import 'package:arthub_flutter/screens/main_screen.dart';
 import 'package:arthub_flutter/widgets/auth_input_field.dart';
 import 'package:arthub_flutter/widgets/custom_button.dart';
-import 'package:arthub_flutter/screens/main_screen.dart';
 import 'package:arthub_flutter/services/auth_service.dart';
 import 'package:arthub_flutter/widgets/error_message.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:arthub_flutter/screens/auth/email_verification_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
 
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
@@ -21,8 +24,12 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
   bool _isLoading = false;
-  String? _errorMessage;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    clientId: '319340216446-qc63ck6c8a139e7c91q1128d6bgpk56c.apps.googleusercontent.com',
+  );
   final AuthService _authService = AuthService();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
   void dispose() {
@@ -32,90 +39,122 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleLogin() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
 
     setState(() {
       _isLoading = true;
-      _errorMessage = null;
     });
 
     try {
-      final user = await _authService.loginWithEmail(
-        _emailController.text.trim(),
-        _passwordController.text.trim(),
+      final userCredential = await _auth.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
       );
-      if (user != null) {
-        final isVerified = await _authService.isEmailVerified(user);
-        if (isVerified) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const MainScreen()),
-          );
-        } else {
-          setState(() {
-            _errorMessage = 'Please verify your email before logging in.';
-          });
-        }
+
+      // Get user document from Firestore
+      final userDoc = await _firestore.collection('users').doc(userCredential.user!.uid).get();
+      
+      // Check both Firebase Auth email verification and Firestore isEmailVerified flag
+      if (!userCredential.user!.emailVerified || !userDoc.exists || !userDoc.data()!['isEmailVerified']) {
+        // Send verification email if not already verified
+        await userCredential.user!.sendEmailVerification();
+        
+        // Navigate to email verification screen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => EmailVerificationScreen(
+            email: _emailController.text.trim(),
+          )),
+        );
+        return;
       }
-    } on FirebaseAuthException catch (e) {
-      setState(() {
-        if (e.code == 'user-not-found') {
-          _errorMessage = 'No user found for that email.';
-        } else if (e.code == 'wrong-password') {
-          _errorMessage = 'Incorrect password. Please try again.';
-        } else {
-          _errorMessage = e.message ?? 'Login failed. Please try again.';
-        }
-      });
+
+      // Only navigate to main screen if both verifications are complete
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const MainScreen()),
+      );
     } catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
     } finally {
       setState(() {
         _isLoading = false;
       });
-    }
-
-    if (_errorMessage != null && _errorMessage!.isNotEmpty) {
-      showErrorPopup(context, _errorMessage ?? 'Unknown error');
     }
   }
 
   Future<void> _handleGoogleSignIn() async {
     setState(() {
       _isLoading = true;
-      _errorMessage = null;
     });
 
     try {
-      final user = await _authService.signInWithGoogle();
-      if (user != null) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const MainScreen()),
-        );
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) return;
+
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final userCredential = await _auth.signInWithCredential(credential);
+      
+      final userDoc = await _firestore.collection('users').doc(userCredential.user!.uid).get();
+      
+      if (!userDoc.exists) {
+        await _firestore.collection('users').doc(userCredential.user!.uid).set({
+          'firstName': userCredential.user!.displayName?.split(' ').first ?? '',
+          'lastName': userCredential.user!.displayName?.split(' ').last ?? '',
+          'email': userCredential.user!.email,
+          'createdAt': FieldValue.serverTimestamp(),
+          'isEmailVerified': true,
+        });
       }
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const MainScreen()),
+      );
     } catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
     } finally {
       setState(() {
         _isLoading = false;
       });
     }
-
-    if (_errorMessage != null && _errorMessage!.isNotEmpty) {
-      showErrorPopup(context, _errorMessage ?? 'Unknown error');
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    if(_authService.getCurrentUser() != null){
-      return const MainScreen();
+    // Check if user is already logged in and verified
+    if(_auth.currentUser != null) {
+      // Check both Firebase Auth and Firestore verification status
+      _firestore.collection('users').doc(_auth.currentUser!.uid).get().then((userDoc) {
+        if (!_auth.currentUser!.emailVerified || !userDoc.exists || !userDoc.data()!['isEmailVerified']) {
+          // If not verified, redirect to verification screen
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => EmailVerificationScreen(
+              email: _auth.currentUser!.email ?? '',
+            )),
+          );
+        } else {
+          // If verified, show main screen
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const MainScreen()),
+          );
+        }
+      });
     }
+
     return Scaffold(
       backgroundColor: const Color(0xFF389C88),
       body: SafeArea(

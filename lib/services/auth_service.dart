@@ -45,7 +45,8 @@ class AuthService {
     final user = _auth.currentUser;
     if (user != null && !user.emailVerified) {
       try {
-        await user.sendEmailVerification();
+        // await user.sendEmailVerification();
+        await sendCustomEmailOTP(email);
       } catch (e) {
         throw Exception('Failed to send email verification: $e');
       }
@@ -159,14 +160,14 @@ class AuthService {
     // SMTP server configuration (use dotenv package for real apps)
     final smtpServer = SmtpServer(
       'smtp.gmail.com', // SMTP server
-      username: 'your@email.com',
-      password: 'yourpassword',
+      username: 'facehidegaming@gmail.com',
+      password: 'ctzmjwujvphcfubw',
       port: 587,
       ssl: false,
     );
 
     final message = Message()
-      ..from = Address('your@email.com', 'ArtHub')
+      ..from = Address('facehidegaming@gmail.com', 'ArtHub')
       ..recipients.add(email)
       ..subject = 'Your ArtHub OTP Code'
       ..text = 'Your OTP code is: $otp';

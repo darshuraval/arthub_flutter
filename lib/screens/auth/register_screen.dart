@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:arthub_flutter/widgets/auth_input_field.dart';
-import 'package:arthub_flutter/screens/auth/otp_verification_screen.dart';
+import 'package:arthub_flutter/screens/auth/email_verification_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -18,6 +20,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _rePasswordController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureRePassword = true;
+  bool _isLoading = false;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
   void dispose() {
@@ -29,20 +34,56 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  void _handleRegister() {
-    if (_formKey.currentState!.validate()) {
-      if (_passwordController.text != _rePasswordController.text) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Passwords do not match')),
-        );
-        return;
-      }
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => OTPVerificationScreen(phoneNumber: _emailController.text.trim()),
-        ),
+  Future<void> _handleRegister() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    if (_passwordController.text != _rePasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Passwords do not match')),
       );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Create user with email and password
+      final userCredential = await _auth.createUserWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+
+      // Send email verification
+      await userCredential.user?.sendEmailVerification();
+
+      // Store additional user data in Firestore
+      await _firestore.collection('users').doc(userCredential.user!.uid).set({
+        'firstName': _firstNameController.text.trim(),
+        'lastName': _lastNameController.text.trim(),
+        'email': _emailController.text.trim(),
+        'createdAt': FieldValue.serverTimestamp(),
+        'isEmailVerified': false,
+      });
+
+      // Navigate to email verification screen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => EmailVerificationScreen(
+          email: _emailController.text.trim(),
+        )),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -100,9 +141,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(height: 20),
                 AuthInputField(
                   controller: _emailController,
-                  hintText: 'Email ID/Phone Number',
+                  hintText: 'Email ID',
                   keyboardType: TextInputType.emailAddress,
-                  validator: (value) => value == null || value.isEmpty ? 'Please enter your email or phone number' : null,
+                  validator: (value) => value == null || value.isEmpty ? 'Please enter your email' : null,
                 ),
                 const SizedBox(height: 20),
                 AuthInputField(
@@ -142,7 +183,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 36),
                 ElevatedButton(
-                  onPressed: _handleRegister,
+                  onPressed: _isLoading ? null : _handleRegister,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
@@ -151,9 +192,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     elevation: 0,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child: const Text(
-                    'Create',
-                    style: TextStyle(
+                  child: Text(
+                    _isLoading ? 'Creating Account...' : 'Create',
+                    style: const TextStyle(
                       color: Color(0xFF389C88),
                       fontSize: 20,
                       fontWeight: FontWeight.w500,

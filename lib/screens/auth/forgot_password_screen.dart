@@ -1,92 +1,143 @@
 import 'package:flutter/material.dart';
-import 'package:arthub_flutter/screens/auth/otp_verification_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:arthub_flutter/screens/auth/login_screen.dart';
 import 'package:arthub_flutter/widgets/auth_input_field.dart';
-import 'package:arthub_flutter/widgets/custom_button.dart';
-import 'package:arthub_flutter/config/app_styles.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({Key? key}) : super(key: key);
 
   @override
-  _ForgotPasswordScreenState createState() => _ForgotPasswordScreenState();
+  State<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
 }
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailPhoneController = TextEditingController();
+  final _emailController = TextEditingController();
+  bool _isLoading = false;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   void dispose() {
-    _emailPhoneController.dispose();
+    _emailController.dispose();
     super.dispose();
+  }
+
+  Future<void> _handleResetPassword() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await _auth.sendPasswordResetEmail(
+        email: _emailController.text.trim(),
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Password reset email sent. Please check your inbox.'),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Color(0xFF389C88),
+            duration: Duration(seconds: 3),
+          ),
+        );
+
+        // Navigate back to login screen
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+          (route) => false,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString()),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppStyles.backgroundColor,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
+      backgroundColor: const Color(0xFF389C88),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: AppStyles.screenPadding,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 40),
+                Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 30),
                 const Text(
-                  'Forgot Password?',
+                  'Forgot Password',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
                     color: Colors.white,
+                    fontSize: 32,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(height: 20),
-                Text(
-                  'Enter your registered email or phone number to receive the verification code',
+                const SizedBox(height: 24),
+                const Text(
+                  'Enter your email address to reset your password',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white,
+                    fontSize: 20,
                   ),
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 36),
                 AuthInputField(
-                  controller: _emailPhoneController,
-                  hintText: 'Email ID / Phone Number',
+                  controller: _emailController,
+                  hintText: 'Email',
                   keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your email or phone number';
-                    }
-                    return null;
-                  },
+                  validator: (value) => value == null || value.isEmpty ? 'Please enter your email' : null,
                 ),
-                const SizedBox(height: 40),
-                CustomButton(
-                  text: 'Send Code',
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => OTPVerificationScreen(
-                            phoneNumber: _emailPhoneController.text,
-                          ),
-                        ),
-                      );
-                    }
-                  },
+                const SizedBox(height: 36),
+                ElevatedButton(
+                  onPressed: _isLoading ? null : _handleResetPassword,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(40),
+                    ),
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                  child: Text(
+                    _isLoading ? 'Sending...' : 'Send Reset Link',
+                    style: const TextStyle(
+                      color: Color(0xFF389C88),
+                      fontSize: 20,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ),
               ],
             ),
