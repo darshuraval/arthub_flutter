@@ -4,6 +4,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:arthub_flutter/screens/auth/register_screen.dart';
 import 'package:arthub_flutter/screens/auth/forgot_password_screen.dart';
 import 'package:arthub_flutter/screens/main_screen.dart';
+import 'package:arthub_flutter/screens/admin/admin_main_screen.dart';
 import 'package:arthub_flutter/widgets/auth_input_field.dart';
 import 'package:arthub_flutter/widgets/custom_button.dart';
 import 'package:arthub_flutter/services/auth_service.dart';
@@ -39,10 +40,6 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleLogin() async {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
-
     setState(() {
       _isLoading = true;
     });
@@ -50,7 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final userCredential = await _auth.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
+        password: _passwordController.text,
       );
 
       // Get user document from Firestore
@@ -71,11 +68,20 @@ class _LoginScreenState extends State<LoginScreen> {
         return;
       }
 
-      // Only navigate to main screen if both verifications are complete
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const MainScreen()),
-      );
+      // Check if user is admin
+      if (userDoc.exists && userDoc.data()!['role'] == 'admin') {
+        // Navigate to admin screen if user is admin
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const AdminMainScreen()),
+        );
+      } else {
+        // Navigate to regular main screen for non-admin users
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const MainScreen()),
+        );
+      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(e.toString())),
@@ -113,13 +119,24 @@ class _LoginScreenState extends State<LoginScreen> {
           'email': userCredential.user!.email,
           'createdAt': FieldValue.serverTimestamp(),
           'isEmailVerified': true,
+          'role': 'user', // Default role for new users
         });
       }
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const MainScreen()),
-      );
+      // Check if user is admin
+      if (userDoc.exists && userDoc.data()!['role'] == 'admin') {
+        // Navigate to admin screen if user is admin
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const AdminMainScreen()),
+        );
+      } else {
+        // Navigate to regular main screen for non-admin users
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const MainScreen()),
+        );
+      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(e.toString())),
@@ -145,8 +162,14 @@ class _LoginScreenState extends State<LoginScreen> {
               email: _auth.currentUser!.email ?? '',
             )),
           );
+        } else if (userDoc.exists && userDoc.data()!['role'] == 'admin') {
+          // If admin, redirect to admin screen
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const AdminMainScreen()),
+          );
         } else {
-          // If verified, show main screen
+          // If regular user, redirect to main screen
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const MainScreen()),

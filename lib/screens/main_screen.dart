@@ -21,7 +21,7 @@ class _MainScreenState extends State<MainScreen> {
             TextButton(onPressed: () {
               AuthService().signOut();
               Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
-            }, child: Text('Sign Out')),
+            }, child: Text('Log Out')),
           ],
         ),
       ),

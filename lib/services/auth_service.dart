@@ -189,4 +189,16 @@ class AuthService {
     }
     return false;
   }
+
+  /// Delete user account
+  Future<void> deleteUser(String uid) async {
+    try {
+      final user = _auth.currentUser;
+      if (user != null && user.uid == uid) {
+        await user.delete();
+      }
+    } on FirebaseAuthException catch (e) {
+      throw Exception('Failed to delete user: ${e.message}');
+    }
+  }
 }
