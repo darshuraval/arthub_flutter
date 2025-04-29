@@ -6,6 +6,8 @@ import 'package:arthub_flutter/screens/admin/user_management_screen.dart';
 import 'package:arthub_flutter/screens/admin/product_management_screen.dart';
 import 'package:arthub_flutter/screens/admin/order_management_screen.dart';
 import 'package:arthub_flutter/screens/admin/dashboard_screen.dart';
+import 'package:arthub_flutter/screens/admin/settings_screen.dart';
+import 'package:arthub_flutter/config/app_styles.dart';
 
 class AdminMainScreen extends StatefulWidget {
   const AdminMainScreen({Key? key}) : super(key: key);
@@ -24,6 +26,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
     const UserManagementScreen(),
     const ProductManagementScreen(),
     const OrderManagementScreen(),
+    const AdminSettingsScreen(),
   ];
 
   @override
@@ -38,7 +41,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
           });
         },
         type: BottomNavigationBarType.fixed,
-        selectedItemColor: const Color(0xFF2D9B88),
+        selectedItemColor: AppStyles.primaryColor,
         unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(
@@ -56,6 +59,10 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.shopping_cart),
             label: 'Orders',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
           ),
         ],
       ),
