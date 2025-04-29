@@ -41,6 +41,7 @@ class AuthFunctions {
         'createdAt': DateTime.now(),
         'updatedAt': DateTime.now(),
         'isEmailVerified': true,
+        'role': 'user',
       });
       return credential.user;
     } catch (e) {

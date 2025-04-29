@@ -65,8 +65,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
         'firstName': _firstNameController.text.trim(),
         'lastName': _lastNameController.text.trim(),
         'email': _emailController.text.trim(),
+        'password': _passwordController.text.trim(),
         'createdAt': FieldValue.serverTimestamp(),
         'isEmailVerified': false,
+        'role': 'user',
       });
 
       // Navigate to email verification screen

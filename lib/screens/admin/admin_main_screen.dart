@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:arthub_flutter/screens/auth/login_screen.dart';
+import 'package:arthub_flutter/screens/admin/user_management_screen.dart';
+import 'package:arthub_flutter/screens/admin/product_management_screen.dart';
+import 'package:arthub_flutter/screens/admin/order_management_screen.dart';
+import 'package:arthub_flutter/screens/admin/dashboard_screen.dart';
 
 class AdminMainScreen extends StatefulWidget {
   const AdminMainScreen({Key? key}) : super(key: key);
@@ -13,61 +17,47 @@ class AdminMainScreen extends StatefulWidget {
 class _AdminMainScreenState extends State<AdminMainScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  int _currentIndex = 0;
+
+  final List<Widget> _screens = [
+    const DashboardScreen(),
+    const UserManagementScreen(),
+    const ProductManagementScreen(),
+    const OrderManagementScreen(),
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Admin Dashboard'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await _auth.signOut();
-              if (mounted) {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => const LoginScreen()),
-                );
-              }
-            },
+      body: _screens[_currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: const Color(0xFF2D9B88),
+        unselectedItemColor: Colors.grey,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.dashboard),
+            label: 'Dashboard',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.people),
+            label: 'Users',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.art_track),
+            label: 'Products',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.shopping_cart),
+            label: 'Orders',
           ),
         ],
-      ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: _firestore.collection('users').snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
-
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          final users = snapshot.data?.docs ?? [];
-
-          return ListView.builder(
-            itemCount: users.length,
-            itemBuilder: (context, index) {
-              final userData = users[index].data() as Map<String, dynamic>;
-              return ListTile(
-                leading: const CircleAvatar(
-                  child: Icon(Icons.person),
-                ),
-                title: Text(userData['email'] ?? 'No email'),
-                subtitle: Text('Role: ${userData['role'] ?? 'User'}'),
-                trailing: IconButton(
-                  icon: const Icon(Icons.edit),
-                  onPressed: () {
-                    // TODO: Implement user role editing
-                    
-                  },
-                ),
-              );
-            },
-          );
-        },
       ),
     );
   }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:arthub_flutter/screens/auth/login_screen.dart';
 import 'package:arthub_flutter/services/shared_preferences_service.dart';
-// import 'package:arthub_flutter/config/app_styles.dart'; // Uncomment if you have AppStyles
+import 'package:arthub_flutter/config/app_styles.dart';
 // import 'package:arthub_flutter/widgets/custom_button.dart'; // Uncomment if you have CustomButton
 
 class OnboardingScreen extends StatefulWidget {
@@ -15,22 +15,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  final List<Map<String, String>> _onboardingPages = [
-    {
-      'title': 'Welcome to ArtHub',
-      'description': 'Discover and purchase unique art pieces from talented artists around the world.',
-      'image': 'images/onboarding1.png',
-    },
-    {
-      'title': 'Browse Collections',
-      'description': 'Explore curated collections and find the perfect artwork for your space.',
-      'image': 'images/onboarding2.png',
-    },
-    {
-      'title': 'Start Your Journey',
-      'description': 'Create an account to save your favorite pieces and start your art collection.',
-      'image': 'images/onboarding3.png',
-    },
+  final List<_OnboardingContent> _contents = [
+    _OnboardingContent(
+      image: 'images/onboarding1.png',
+      title: 'Empowering Artisans, Artist & Designer',
+      description: 'Discover and connect with talented artists and designers from around the world.',
+    ),
+    _OnboardingContent(
+      image: 'images/onboarding2.png',
+      title: 'Connecting NGOs, Social Enterprises with Communities',
+      description: 'Support social causes and make a difference through art and creativity.',
+    ),
+    _OnboardingContent(
+      image: 'images/onboarding3.png',
+      title: 'Donate, Invest & Support infrastructure projects',
+      description: 'Contribute to meaningful projects and help build a better future for artists.',
+    ),
   ];
 
   @override
@@ -40,7 +40,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   void _nextPage() {
-    if (_currentPage < _onboardingPages.length - 1) {
+    if (_currentPage < _contents.length - 1) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
@@ -63,97 +63,108 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF389C88), // Or AppStyles.backgroundColor
-      body: Stack(
-        children: [
-          PageView.builder(
-            controller: _pageController,
-            onPageChanged: (int page) {
-              setState(() {
-                _currentPage = page;
-              });
-            },
-            itemCount: _onboardingPages.length,
-            itemBuilder: (context, index) {
-              return Container(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      _onboardingPages[index]['image']!,
-                      height: 300,
+      backgroundColor: AppStyles.backgroundColor,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: PageView.builder(
+                controller: _pageController,
+                onPageChanged: (index) {
+                  setState(() {
+                    _currentPage = index;
+                  });
+                },
+                itemCount: _contents.length,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.all(40.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset(
+                          _contents[index].image,
+                          height: 300,
+                        ),
+                        const SizedBox(height: 30),
+                        Text(
+                          _contents[index].title,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                        if (_contents[index].description.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 15.0),
+                            child: Text(
+                              _contents[index].description,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
-                    const SizedBox(height: 40),
-                    Text(
-                      _onboardingPages[index]['title']!,
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      _onboardingPages[index]['description']!,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-          Positioned(
-            bottom: 40,
-            left: 0,
-            right: 0,
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(
-                    _onboardingPages.length,
-                    (index) => Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 8),
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: _currentPage == index
-                            ? const Color(0xFF2D9B88)
-                            : Colors.grey,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: _nextPage,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2D9B88),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 40,
-                      vertical: 12,
-                    ),
-                  ),
-                  child: Text(
-                    _currentPage == _onboardingPages.length - 1
-                        ? 'Get Started'
-                        : 'Next',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: List.generate(
+                      _contents.length,
+                      (index) => _buildDot(index),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 120,
+                    child: ElevatedButton(
+                      onPressed: _nextPage,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: const Color(0xFF389C88),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        textStyle: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        elevation: 0,
+                      ),
+                      child: Text(
+                        _currentPage == _contents.length - 1 ? 'Finish' : 'Next',
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDot(int index) {
+    return Container(
+      height: 10,
+      width: 10,
+      margin: const EdgeInsets.only(right: 5),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: _currentPage == index ? Colors.white : Colors.white38,
       ),
     );
   }
