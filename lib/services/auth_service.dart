@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -157,17 +158,25 @@ class AuthService {
     final otp = generateOtp();
     _otpStore[email] = otp;
 
-    // SMTP server configuration (use dotenv package for real apps)
+    // Load SMTP credentials from environment variables
+    final smtpUsername = dotenv.env['SMTP_USERNAME'];
+    final smtpPassword = dotenv.env['SMTP_PASSWORD'];
+
+    if (smtpUsername == null || smtpPassword == null) {
+      throw Exception('SMTP credentials are not set in environment variables.');
+    }
+
+    // SMTP server configuration
     final smtpServer = SmtpServer(
       'smtp.gmail.com', // SMTP server
-      username: 'facehidegaming@gmail.com',
-      password: 'ctzmjwujvphcfubw',
+      username: smtpUsername,
+      password: smtpPassword,
       port: 587,
       ssl: false,
     );
 
     final message = Message()
-      ..from = Address('facehidegaming@gmail.com', 'ArtHub')
+      ..from = Address(smtpUsername, 'ArtHub')
       ..recipients.add(email)
       ..subject = 'Your ArtHub OTP Code'
       ..text = 'Your OTP code is: $otp';

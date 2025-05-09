@@ -113,8 +113,9 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> with 
         
         final userDoc = await _firestore.collection('users').doc(user.uid).get();
         
-        if (user.emailVerified) {
-          if (!userDoc.exists || !userDoc.data()!['isEmailVerified']) {
+        if ((userDoc.exists && userDoc.data()!['isEmailVerified'] == true) || user.emailVerified) {
+          // If not yet updated in Firestore, update it
+          if (userDoc.exists && userDoc.data()!['isEmailVerified'] != true) {
             await _firestore.collection('users').doc(user.uid).update({
               'isEmailVerified': true,
             });
@@ -123,7 +124,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> with 
           setState(() {
             _isVerified = true;
           });
-          
+
           Future.delayed(const Duration(seconds: 2), () {
             if (mounted) {
               Navigator.pushReplacement(
@@ -341,4 +342,4 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> with 
       ),
     );
   }
-} 
+}

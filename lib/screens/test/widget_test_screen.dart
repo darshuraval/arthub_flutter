@@ -1,37 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:arthub_flutter/widgets/custom_button.dart';
-import 'package:arthub_flutter/widgets/custom_text_field.dart';
-import 'package:arthub_flutter/widgets/custom_app_bar.dart';
-import 'package:arthub_flutter/widgets/product_card.dart';
-import 'package:arthub_flutter/widgets/category_card.dart';
-import 'package:arthub_flutter/widgets/custom_search_bar.dart';
-import 'package:arthub_flutter/widgets/auth_input_field.dart';
-import 'package:arthub_flutter/widgets/otp_input_field.dart';
-import 'package:arthub_flutter/widgets/form_input_field.dart';
-import 'package:arthub_flutter/widgets/location_button.dart';
-import 'package:arthub_flutter/widgets/payment_method_selector.dart';
-import 'package:arthub_flutter/widgets/shipping_address_card.dart';
-import 'package:arthub_flutter/widgets/credit_card_widget.dart';
-import 'package:arthub_flutter/widgets/promo_code_input.dart';
-import 'package:arthub_flutter/widgets/checkout_summary_card.dart';
-import 'package:arthub_flutter/widgets/checkout_button.dart';
-import 'package:arthub_flutter/widgets/section_header.dart';
-import 'package:arthub_flutter/widgets/order_transaction_card.dart';
-import 'package:arthub_flutter/widgets/profile_header.dart';
-import 'package:arthub_flutter/widgets/profile_menu_item.dart';
-import 'package:arthub_flutter/widgets/add_photo_box.dart';
-import 'package:arthub_flutter/widgets/product_price_row.dart';
-import 'package:arthub_flutter/widgets/tag_chip.dart';
-import 'package:arthub_flutter/widgets/store_header.dart';
-import 'package:arthub_flutter/widgets/empty_state.dart';
-import 'package:arthub_flutter/widgets/product_image_carousel.dart';
-import 'package:arthub_flutter/widgets/artist_info_row.dart';
-import 'package:arthub_flutter/widgets/product_description.dart';
-import 'package:arthub_flutter/widgets/product_details_table.dart';
-import 'package:arthub_flutter/widgets/additional_details_row.dart';
-import 'package:arthub_flutter/widgets/credit_card_carousel_indicator.dart';
-import 'package:arthub_flutter/screens/add_address_screen.dart';
-import 'package:arthub_flutter/screens/my_store_screen.dart';
+import 'package:arthub_flutter/widgets/widgets.dart';
 
 class WidgetTestScreen extends StatefulWidget {
   const WidgetTestScreen({Key? key}) : super(key: key);
@@ -89,13 +57,13 @@ class _WidgetTestScreenState extends State<WidgetTestScreen> {
           children: [
             CustomButton(text: 'My Store', 
               onPressed: () => {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => MyStoreScreen()))
+                // Navigator.push(context, MaterialPageRoute(builder: (context) => MyStoreScreen()))
               }
             ),
             
             CustomButton(text: 'Add Address', 
               onPressed: () => {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => AddAddressScreen()))
+                // Navigator.push(context, MaterialPageRoute(builder: (context) => AddAddressScreen()))
               }
             ),
             
