@@ -2,17 +2,16 @@ import 'package:arthub_flutter/services/auth_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:arthub_flutter/services/auth_service.dart';
 import 'package:arthub_flutter/screens/auth/login_screen.dart';
-import 'package:arthub_flutter/screens/user/user_main_screen.dart';
-import 'package:arthub_flutter/screens/admin/admin_home_screen.dart';
+import 'package:arthub_flutter/screens/admin/admin_main_screen.dart';
+import 'package:arthub_flutter/screens/user/user_home_screen.dart';
 
-class AdminMainScreen extends StatefulWidget {
-  const AdminMainScreen({Key? key}) : super(key: key);
+class UserMainScreen extends StatefulWidget {
+  const UserMainScreen({Key? key}) : super(key: key);
 
-  @override
-  _AdminMainScreenState createState() => _AdminMainScreenState();
+  _UserMainScreenState createState() => _UserMainScreenState();
 }
 
-class _AdminMainScreenState extends State<AdminMainScreen> {
+class _UserMainScreenState extends State<UserMainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,25 +21,30 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
           children: [
             TextButton(
                 onPressed: () {
-                  AuthService().signOut();
                   Navigator.pushReplacement(context,
-                      MaterialPageRoute(builder: (context) => AdminHomeScreen()));
+                      MaterialPageRoute(builder: (context) => UserHomeScreen()));
                 },
-                child: Text('Admin Home Page')
+                child: Text('User Home Page')
             ),
             Text(AuthService().getCurrentUser()!.email!),
             FutureBuilder<String?>(
               future: AuthFunctions().getUserRole(),
               builder: (context, snapshot) {
-                return TextButton(
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return SizedBox.shrink(); // or a loader if you want
+                }
+                if (snapshot.data == 'admin') {
+                  return TextButton(
                     onPressed: () async {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => UserMainScreen()),
+                        MaterialPageRoute(builder: (context) => AdminMainScreen()),
                       );
                     },
-                    child: Text('Go to User MainScreen'),
+                    child: Text('Go to Admin MainScreen'),
                   );
+                }
+                return SizedBox.shrink(); // Don't show the button for non-admins
               },
             ),
             TextButton(

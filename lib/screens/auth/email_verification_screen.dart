@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:arthub_flutter/screens/main_screen.dart';
+import 'package:arthub_flutter/screens/user/user_main_screen.dart';
 import 'package:arthub_flutter/screens/auth/login_screen.dart';
 import 'dart:async';
 
@@ -129,7 +129,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> with 
             if (mounted) {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => const MainScreen()),
+                MaterialPageRoute(builder: (context) => const UserMainScreen()),
               );
             }
           });

@@ -5,6 +5,7 @@ import 'package:arthub_flutter/screens/auth/register_screen.dart';
 import 'package:arthub_flutter/screens/auth/forgot_password_screen.dart';
 import 'package:arthub_flutter/screens/main_screen.dart';
 import 'package:arthub_flutter/screens/admin/admin_main_screen.dart';
+import 'package:arthub_flutter/screens/user/user_main_screen.dart';
 import 'package:arthub_flutter/widgets/auth_input_field.dart';
 import 'package:arthub_flutter/widgets/custom_button.dart';
 import 'package:arthub_flutter/services/auth_service.dart';
@@ -79,7 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
         // Navigate to regular main screen for non-admin users
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const MainScreen()),
+          MaterialPageRoute(builder: (context) => const UserMainScreen()),
         );
       }
     } catch (e) {
@@ -134,7 +135,7 @@ class _LoginScreenState extends State<LoginScreen> {
         // Navigate to regular main screen for non-admin users
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const MainScreen()),
+          MaterialPageRoute(builder: (context) => const UserMainScreen()),
         );
       }
     } catch (e) {
@@ -172,7 +173,7 @@ class _LoginScreenState extends State<LoginScreen> {
           // If regular user, redirect to main screen
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const MainScreen()),
+            MaterialPageRoute(builder: (context) => const UserMainScreen()),
           );
         }
       });
