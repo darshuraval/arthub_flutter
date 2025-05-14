@@ -4,6 +4,8 @@ import 'package:arthub_flutter/screens/splash/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:arthub_flutter/firebase_options.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:arthub_flutter/screens/auth/login_screen.dart';
+import 'package:arthub_flutter/screens/admin/admin_home_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,7 +31,9 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         scaffoldBackgroundColor: Colors.white,
       ),
-      home: const SplashScreen(),
+      home: const AdminHomeScreen(),
+      // home: const LoginScreen(),
+      // home: const SplashScreen(),
       debugShowCheckedModeBanner: false,
     );
   }
