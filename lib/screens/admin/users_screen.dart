@@ -8,26 +8,36 @@ class UsersScreen extends StatefulWidget {
   State<UsersScreen> createState() => _UsersScreenState();
 }
 
-class _UsersScreenState extends State<UsersScreen> {
+class _UsersScreenState extends State<UsersScreen> with SingleTickerProviderStateMixin {
   final UserService _userService = UserService();
-  List<Map<String, dynamic>> _users = [];
+  List<Map<String, dynamic>> _authUsers = [];
+  List<Map<String, dynamic>> _firestoreUsers = [];
   bool _isLoading = true;
   String _searchQuery = '';
   String _selectedRole = 'All';
   String _selectedStatus = 'All';
+  late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this);
     _loadUsers();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadUsers() async {
     setState(() => _isLoading = true);
     try {
-      final users = await _userService.getAllUsers();
+      final result = await _userService.getAllUsers();
       setState(() {
-        _users = users;
+        _authUsers = result.authUsers;
+        _firestoreUsers = result.firestoreUsers;
         _isLoading = false;
       });
     } catch (e) {
@@ -143,8 +153,8 @@ class _UsersScreenState extends State<UsersScreen> {
     }
   }
 
-  List<Map<String, dynamic>> _getFilteredUsers() {
-    return _users.where((user) {
+  List<Map<String, dynamic>> _getFilteredUsers(List<Map<String, dynamic>> users) {
+    return users.where((user) {
       final matchesSearch = _searchQuery.isEmpty ||
           user['email'].toString().toLowerCase().contains(_searchQuery.toLowerCase()) ||
           user['firstName']?.toString().toLowerCase().contains(_searchQuery.toLowerCase()) == true ||
@@ -157,10 +167,67 @@ class _UsersScreenState extends State<UsersScreen> {
     }).toList();
   }
 
+  Widget _buildUserList(List<Map<String, dynamic>> users, bool isAuthTab) {
+    // Filter users based on source
+    final filteredUsers = users.where((user) => 
+      isAuthTab ? user['source'] == 'auth' : user['source'] == 'firestore'
+    ).toList();
+    
+    final searchFilteredUsers = _getFilteredUsers(filteredUsers);
+    
+    if (searchFilteredUsers.isEmpty) {
+      return const Center(
+        child: Text('No users found'),
+      );
+    }
+
+    return ListView.builder(
+      itemCount: searchFilteredUsers.length,
+      itemBuilder: (context, index) {
+        final user = searchFilteredUsers[index];
+        return ListTile(
+          leading: CircleAvatar(
+            backgroundColor: Theme.of(context).primaryColor,
+            child: Text(
+              (user['firstName']?[0] ?? user['email']?[0] ?? '?').toUpperCase(),
+              style: const TextStyle(color: Colors.white),
+            ),
+          ),
+          title: Text(
+            user['firstName'] != null && user['lastName'] != null
+                ? '${user['firstName']} ${user['lastName']}'
+                : user['email'],
+          ),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(user['email'] ?? 'No email'),
+              if (user['role'] != null) Text('Role: ${user['role']}'),
+              if (user['status'] != null) Text('Status: ${user['status']}'),
+              if (user['isEmailVerified'] != null) 
+                Text('Email Verified: ${user['isEmailVerified'] ? 'Yes' : 'No'}'),
+            ],
+          ),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.edit),
+                onPressed: () => _updateUser(user),
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete),
+                onPressed: () => _deleteUser(user['email']),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final filteredUsers = _getFilteredUsers();
-
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -230,53 +297,22 @@ class _UsersScreenState extends State<UsersScreen> {
             ],
           ),
           const SizedBox(height: 16),
+          TabBar(
+            controller: _tabController,
+            tabs: const [
+              Tab(text: 'Firestore Users'),
+              Tab(text: 'Firebase Auth Users'),
+            ],
+          ),
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
-                : Card(
-                    child: ListView.builder(
-                      itemCount: filteredUsers.length,
-                      itemBuilder: (context, index) {
-                        final user = filteredUsers[index];
-                        return ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: Theme.of(context).primaryColor,
-                            child: Text(
-                              (user['firstName']?[0] ?? user['email']?[0] ?? '?').toUpperCase(),
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                          ),
-                          title: Text(
-                            user['firstName'] != null && user['lastName'] != null
-                                ? '${user['firstName']} ${user['lastName']}'
-                                : user['email'],
-                          ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(user['email'] ?? 'No email'),
-                              if (user['role'] != null) Text('Role: ${user['role']}'),
-                              if (user['status'] != null) Text('Status: ${user['status']}'),
-                              if (user['isEmailVerified'] != null) 
-                                Text('Email Verified: ${user['isEmailVerified'] ? 'Yes' : 'No'}'),
-                            ],
-                          ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.edit),
-                                onPressed: () => _updateUser(user),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.delete),
-                                onPressed: () => _deleteUser(user['email']),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
+                : TabBarView(
+                    controller: _tabController,
+                    children: [
+                      Card(child: _buildUserList(_firestoreUsers, false)),
+                      Card(child: _buildUserList(_authUsers, true)),
+                    ],
                   ),
           ),
         ],

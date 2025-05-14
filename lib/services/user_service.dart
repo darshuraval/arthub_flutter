@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class UserService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -8,21 +10,19 @@ class UserService {
   // Get all users from both Auth and Firestore
   Future<({List<Map<String, dynamic>> authUsers, List<Map<String, dynamic>> firestoreUsers})> getAllUsers() async {
     try {
-      // Get Auth users
-      final authUsers = await _auth.fetchSignInMethodsForEmail('dummy@email.com'); // This is just to get the auth instance
-      final authUserList = await Future.wait(
-        _auth.currentUser != null ? [_auth.currentUser!] : [],
-        (user) async {
-          return {
-            'uid': user.uid,
-            'email': user.email,
-            'isEmailVerified': user.emailVerified,
-            'source': 'auth',
-            'created_at': user.metadata.creationTime?.toIso8601String(),
-            'lastSignIn': user.metadata.lastSignInTime?.toIso8601String(),
-          };
-        },
-      );
+      // Get Auth users from Firestore
+      final authUsersSnapshot = await _firestore
+          .collection('auth_users')
+          .get();
+      
+      final authUsers = authUsersSnapshot.docs.map((doc) {
+        final data = doc.data();
+        return {
+          'uid': doc.id,
+          ...data,
+          'source': 'auth',
+        };
+      }).toList();
 
       // Get Firestore users
       final querySnapshot = await _firestore.collection('users').get();
@@ -36,10 +36,11 @@ class UserService {
       }).toList();
 
       return (
-        authUsers: authUserList,
+        authUsers: authUsers,
         firestoreUsers: firestoreUsers,
       );
     } catch (e) {
+      print('Error getting users: $e'); // Add logging
       throw Exception('Failed to get users: $e');
     }
   }
@@ -74,7 +75,16 @@ class UserService {
         'updated_at': FieldValue.serverTimestamp(),
       };
 
-      await _firestore.collection('users').doc(user.uid).set(userData);
+      // Store in both collections
+      await Future.wait([
+        _firestore.collection('users').doc(user.uid).set(userData),
+        _firestore.collection('auth_users').doc(user.uid).set({
+          'email': email,
+          'isEmailVerified': isEmailVerified,
+          'created_at': FieldValue.serverTimestamp(),
+          'lastSignIn': FieldValue.serverTimestamp(),
+        }),
+      ]);
 
       return {
         'uid': user.uid,
@@ -89,21 +99,21 @@ class UserService {
   // Get user by email
   Future<({Map<String, dynamic>? authUser, Map<String, dynamic>? firestoreUser})> getUserByEmail(String email) async {
     try {
-      // Get Auth user
-      final authMethods = await _auth.fetchSignInMethodsForEmail(email);
+      // Get Auth user from Firestore
+      final authQuerySnapshot = await _firestore
+          .collection('auth_users')
+          .where('email', isEqualTo: email)
+          .limit(1)
+          .get();
+
       Map<String, dynamic>? authUser;
-      if (authMethods.isNotEmpty) {
-        final currentUser = _auth.currentUser;
-        if (currentUser != null && currentUser.email == email) {
-          authUser = {
-            'uid': currentUser.uid,
-            'email': currentUser.email,
-            'isEmailVerified': currentUser.emailVerified,
-            'source': 'auth',
-            'created_at': currentUser.metadata.creationTime?.toIso8601String(),
-            'lastSignIn': currentUser.metadata.lastSignInTime?.toIso8601String(),
-          };
-        }
+      if (authQuerySnapshot.docs.isNotEmpty) {
+        final doc = authQuerySnapshot.docs.first;
+        authUser = {
+          'uid': doc.id,
+          ...doc.data(),
+          'source': 'auth',
+        };
       }
 
       // Get Firestore user
@@ -157,7 +167,14 @@ class UserService {
       if (isEmailVerified != null) updates['isEmailVerified'] = isEmailVerified;
       if (status != null) updates['status'] = status;
 
-      await _firestore.collection('users').doc(uid).update(updates);
+      // Update both collections
+      await Future.wait([
+        _firestore.collection('users').doc(uid).update(updates),
+        _firestore.collection('auth_users').doc(uid).update({
+          'isEmailVerified': isEmailVerified,
+          'updated_at': FieldValue.serverTimestamp(),
+        }),
+      ]);
 
       // Update password if provided
       if (password != null && userData.authUser != null) {
@@ -182,8 +199,11 @@ class UserService {
 
       final uid = userData.firestoreUser!['uid'];
       
-      // Delete from Firestore
-      await _firestore.collection('users').doc(uid).delete();
+      // Delete from both collections
+      await Future.wait([
+        _firestore.collection('users').doc(uid).delete(),
+        _firestore.collection('auth_users').doc(uid).delete(),
+      ]);
       
       // Delete from Auth if exists
       if (userData.authUser != null) {
