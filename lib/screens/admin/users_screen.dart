@@ -11,27 +11,113 @@ class UsersScreen extends StatefulWidget {
   State<UsersScreen> createState() => _UsersScreenState();
 }
 
-class _UsersScreenState extends State<UsersScreen> with SingleTickerProviderStateMixin {
+class _UserCard extends StatelessWidget {
+  final Map<String, dynamic> user;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
+  const _UserCard({required this.user, required this.onEdit, required this.onDelete, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Image.asset(
+              'images/user_logo.png',
+              width: 60,
+              height: 60,
+              fit: BoxFit.cover,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  user['firstName'] != null && user['lastName'] != null
+                      ? '${user['firstName']} ${user['lastName']}'
+                      : user['email'],
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  user['email'] ?? 'No email',
+                  style: const TextStyle(fontSize: 16, decoration: TextDecoration.underline),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  user['status'] != null ? user['status'][0].toUpperCase() + user['status'].substring(1) : 'Active',
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          Column(
+            children: [
+              ElevatedButton(
+                onPressed: onEdit,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF2D9B88),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                  elevation: 0,
+                ),
+                child: const Text('Edit', style: TextStyle(fontWeight: FontWeight.w600)),
+              ),
+              const SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: onDelete,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF2D9B88),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                  elevation: 0,
+                ),
+                child: const Text('Delete', style: TextStyle(fontWeight: FontWeight.w600)),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _UsersScreenState extends State<UsersScreen> {
   final UserService _userService = UserService();
-  List<Map<String, dynamic>> _authUsers = [];
-  List<Map<String, dynamic>> _firestoreUsers = [];
+  List<Map<String, dynamic>> _users = [];
   bool _isLoading = true;
   String _searchQuery = '';
-  String _selectedRole = 'All';
   String _selectedStatus = 'All';
-  late TabController _tabController;
+  String _selectedRole = 'All';
   final _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
     _loadUsers();
   }
 
   @override
   void dispose() {
-    _tabController.dispose();
     _searchController.dispose();
     super.dispose();
   }
@@ -41,8 +127,7 @@ class _UsersScreenState extends State<UsersScreen> with SingleTickerProviderStat
     try {
       final result = await _userService.getAllUsers();
       setState(() {
-        _authUsers = result.authUsers;
-        _firestoreUsers = result.firestoreUsers;
+        _users = result;
         _isLoading = false;
       });
     } catch (e) {
@@ -65,7 +150,6 @@ class _UsersScreenState extends State<UsersScreen> with SingleTickerProviderStat
       try {
         await _userService.createUser(
           email: result['email']!,
-          password: result['password']!,
           firstName: result['firstName']!,
           lastName: result['lastName']!,
           role: result['role']!,
@@ -158,169 +242,158 @@ class _UsersScreenState extends State<UsersScreen> with SingleTickerProviderStat
     }
   }
 
-  List<Map<String, dynamic>> _getFilteredUsers(List<Map<String, dynamic>> users) {
-    return users.where((user) {
-      final matchesSearch = _searchQuery.isEmpty ||
-          user['email'].toString().toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          user['firstName']?.toString().toLowerCase().contains(_searchQuery.toLowerCase()) == true ||
-          user['lastName']?.toString().toLowerCase().contains(_searchQuery.toLowerCase()) == true;
-
-      final matchesRole = _selectedRole == 'All' || user['role'] == _selectedRole;
-      final matchesStatus = _selectedStatus == 'All' || user['status'] == _selectedStatus;
-
-      return matchesSearch && matchesRole && matchesStatus;
-    }).toList();
-  }
-
-  Widget _buildUserList(List<Map<String, dynamic>> users, bool isAuthTab) {
-    // Filter users based on source
-    final filteredUsers = users.where((user) => 
-      isAuthTab ? user['source'] == 'auth' : user['source'] == 'firestore'
-    ).toList();
-    
-    final searchFilteredUsers = _getFilteredUsers(filteredUsers);
-    
-    if (searchFilteredUsers.isEmpty) {
-      return const Center(
-        child: Text('No users found'),
-      );
-    }
-
-    return ListView.builder(
-      itemCount: searchFilteredUsers.length,
-      itemBuilder: (context, index) {
-        final user = searchFilteredUsers[index];
-        return UserListTile(
-          user: user,
-          onEdit: () => _updateUser(user),
-          onDelete: () => _deleteUser(user['email']),
+  Future<void> _showFilterDialog() async {
+    String tempRole = _selectedRole;
+    String tempStatus = _selectedStatus;
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Filter Users'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DropdownButtonFormField<String>(
+                value: tempRole,
+                decoration: const InputDecoration(labelText: 'Role'),
+                items: const [
+                  DropdownMenuItem(value: 'All', child: Text('All Roles')),
+                  DropdownMenuItem(value: 'admin', child: Text('Admin')),
+                  DropdownMenuItem(value: 'user', child: Text('User')),
+                ],
+                onChanged: (value) {
+                  tempRole = value!;
+                },
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: tempStatus,
+                decoration: const InputDecoration(labelText: 'Status'),
+                items: const [
+                  DropdownMenuItem(value: 'All', child: Text('All Status')),
+                  DropdownMenuItem(value: 'active', child: Text('Active')),
+                  DropdownMenuItem(value: 'inactive', child: Text('Inactive')),
+                ],
+                onChanged: (value) {
+                  tempStatus = value!;
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                setState(() {
+                  _selectedRole = tempRole;
+                  _selectedStatus = tempStatus;
+                });
+                await _applyFilter();
+              },
+              child: const Text('Apply'),
+            ),
+          ],
         );
       },
     );
   }
 
+  Future<void> _applyFilter() async {
+    setState(() => _isLoading = true);
+    try {
+      List<Map<String, dynamic>> users = [];
+      if (_selectedRole != 'All' && _selectedStatus != 'All') {
+        // Firestore doesn't support multiple where on different fields easily, so fetch by status and filter by role in Dart
+        users = await _userService.getUsersByStatus(_selectedStatus);
+        users = users.where((u) => u['role'] == _selectedRole).toList();
+      } else if (_selectedRole != 'All') {
+        users = await _userService.getUsersByRole(_selectedRole);
+      } else if (_selectedStatus != 'All') {
+        users = await _userService.getUsersByStatus(_selectedStatus);
+      } else {
+        final result = await _userService.getAllUsers();
+        users = result;
+      }
+      setState(() {
+        _users = users;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() => _isLoading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error applying filter: $e')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SectionHeader(
-            title: 'Users Management',
-          ),
-          const SizedBox(height: 16),
-          CustomSearchBar(
-            controller: _searchController,
-            hintText: 'Search users...',
-            onChanged: (value) => setState(() => _searchQuery = value),
-          ),
-          const SizedBox(height: 16),
-          Row(
+    final filteredUsers = _users;
+    return SafeArea(
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: Color(0xFF2D9B88)),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: _selectedRole,
-                    items: const [
-                      DropdownMenuItem(value: 'All', child: Text('All Roles')),
-                      DropdownMenuItem(value: 'admin', child: Text('Admin')),
-                      DropdownMenuItem(value: 'user', child: Text('User')),
-                    ],
-                    onChanged: (value) {
-                      setState(() => _selectedRole = value!);
-                    },
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'All Users',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: Color(0xFF2D9B88)),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: _selectedStatus,
-                    items: const [
-                      DropdownMenuItem(value: 'All', child: Text('All Status')),
-                      DropdownMenuItem(value: 'active', child: Text('Active')),
-                      DropdownMenuItem(value: 'inactive', child: Text('Inactive')),
+                  Row(
+                    children: [
+                      ElevatedButton(
+                        onPressed: _showFilterDialog,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFE6F2F0),
+                          foregroundColor: const Color(0xFF2D9B88),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                        ),
+                        child: const Text('Filter', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: _createUser,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF2D9B88),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                        ),
+                        child: const Text('Add User', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      ),
                     ],
-                    onChanged: (value) {
-                      setState(() => _selectedStatus = value!);
-                    },
                   ),
-                ),
+                ],
               ),
+              const SizedBox(height: 12),
+              _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : Column(
+                      children: filteredUsers
+                          .map((user) => _UserCard(
+                                user: user,
+                                onEdit: () => _updateUser(user),
+                                onDelete: () => _deleteUser(user['email']),
+                              ))
+                          .toList(),
+                    ),
+              const SizedBox(height: 24),
             ],
           ),
-          const SizedBox(height: 16),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 4,
-                ),
-              ],
-            ),
-            child: TabBar(
-              controller: _tabController,
-              labelColor: const Color(0xFF2D9B88),
-              unselectedLabelColor: Colors.grey,
-              indicator: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: const Color(0xFF2D9B88).withOpacity(0.1),
-              ),
-              tabs: const [
-                Tab(text: 'Firestore Users'),
-                Tab(text: 'Firebase Auth Users'),
-              ],
-            ),
-          ),
-          const SizedBox(height: 8),
-          Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : TabBarView(
-                    controller: _tabController,
-                    children: [
-                      Card(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        elevation: 2,
-                        child: _buildUserList(_firestoreUsers, false),
-                      ),
-                      Card(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        elevation: 2,
-                        child: _buildUserList(_authUsers, true),
-                      ),
-                    ],
-                  ),
-          ),
-          const SizedBox(height: 16),
-          CustomButton(
-            text: 'Add User',
-            onPressed: _createUser,
-            backgroundColor: const Color(0xFF2D9B88),
-            textColor: Colors.white,
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -492,60 +565,6 @@ class _UserFormDialogState extends State<_UserFormDialog> {
           child: Text(isEditing ? 'Update' : 'Create'),
         ),
       ],
-    );
-  }
-}
-
-class UserListTile extends StatelessWidget {
-  final Map<String, dynamic> user;
-  final VoidCallback onEdit;
-  final VoidCallback onDelete;
-
-  const UserListTile({
-    required this.user,
-    required this.onEdit,
-    required this.onDelete,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: CircleAvatar(
-        backgroundColor: Theme.of(context).primaryColor,
-        child: Text(
-          (user['firstName']?[0] ?? user['email']?[0] ?? '?').toUpperCase(),
-          style: const TextStyle(color: Colors.white),
-        ),
-      ),
-      title: Text(
-        user['firstName'] != null && user['lastName'] != null
-            ? '${user['firstName']} ${user['lastName']}'
-            : user['email'],
-      ),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(user['email'] ?? 'No email'),
-          if (user['role'] != null) Text('Role: ${user['role']}'),
-          if (user['status'] != null) Text('Status: ${user['status']}'),
-          if (user['isEmailVerified'] != null)
-            Text('Email Verified: ${user['isEmailVerified'] ? 'Yes' : 'No'}'),
-        ],
-      ),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: onEdit,
-          ),
-          IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: onDelete,
-          ),
-        ],
-      ),
     );
   }
 } 

@@ -43,8 +43,15 @@ class ProductService {
       'created_at': now,
       'modified_at': now,
     };
-    await docRef.set(product);
-    return product;
+    print('Creating product: $product');
+    try {
+      await docRef.set(product);
+      print('Product created!');
+      return product;
+    } catch (e, st) {
+      print('Error creating product: $e\n$st');
+      rethrow;
+    }
   }
 
   // Get all products

@@ -205,8 +205,6 @@ class AddressService {
 //   'updated_at': String (ISO8601 timestamp)
 // }
 
-
-
 // final addressService = AddressService();
 
 // // Create an address
