@@ -323,49 +323,84 @@ class _ProductsScreenState extends State<ProductsScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 SizedBox(
-                                  height: 80,
+                                  height: 200,
                                   width: double.infinity,
                                   child: productImageUrl.isNotEmpty
                                       ? Image.network(
                                           productImageUrl,
-                                          height: 80,
+                                          height: 200,
                                           fit: BoxFit.cover,
                                           errorBuilder: (context, error, stackTrace) => Image.asset(
                                             'images/product_logo.png',
-                                            height: 80,
+                                            height: 200,
                                             fit: BoxFit.cover,
                                           ),
                                         )
                                       : Image.asset(
                                           'images/product_logo.png',
-                                          height: 80,
+                                          height: 200,
                                           fit: BoxFit.cover,
                                         ),
                                 ),
                                 Padding(
-                                  padding: const EdgeInsets.all(12.0),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(product['productName'] ?? '', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
-                                      const SizedBox(height: 4),
-                                      Row(
-                                        children: [
-                                          if (discount != null && discount > 0)
-                                            Text(
-                                              '\$${price}',
-                                              style: const TextStyle(fontSize: 14, color: Colors.grey, decoration: TextDecoration.lineThrough),
-                                            ),
-                                          if (discount != null && discount > 0) const SizedBox(width: 8),
-                                          Text(
-                                            '\$${discount != null && discount > 0 ? discount : price}',
-                                            style: const TextStyle(fontSize: 18, color: Color(0xFF339989), fontWeight: FontWeight.bold),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
+  padding: const EdgeInsets.all(12.0),
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        product['productName'] ?? '',
+        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+      ),
+      const SizedBox(height: 4),
+
+      // Price Row with discount badge aligned right
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          if (discount != null && discount > 0)
+            Text(
+              '\$${price}',
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.grey,
+                decoration: TextDecoration.lineThrough,
+              ),
+            ),
+          if (discount != null && discount > 0) const SizedBox(width: 8),
+          Text(
+            '\$${discount != null && discount > 0 ? (price - discount).toStringAsFixed(2) : price}',
+            style: const TextStyle(
+              fontSize: 18,
+              color: Color(0xFF339989),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+
+          // Spacer to push the badge to the right
+          const Spacer(),
+
+          if (discount != null && discount > 0 && price > 0)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.redAccent,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                '-${((100 * discount) / price).round()}% OFF',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+              ),
+            ),
+        ],
+      ),
+    ],
+  ),
+),
+
                               ],
                             ),
                             Positioned(
