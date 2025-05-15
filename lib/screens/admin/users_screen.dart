@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../services/user_service.dart';
+import '../../widgets/section_header.dart';
+import '../../widgets/custom_search_bar.dart';
+import '../../widgets/custom_button.dart';
 
 class UsersScreen extends StatefulWidget {
   const UsersScreen({super.key});
@@ -17,6 +20,7 @@ class _UsersScreenState extends State<UsersScreen> with SingleTickerProviderStat
   String _selectedRole = 'All';
   String _selectedStatus = 'All';
   late TabController _tabController;
+  final _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -28,6 +32,7 @@ class _UsersScreenState extends State<UsersScreen> with SingleTickerProviderStat
   @override
   void dispose() {
     _tabController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -185,42 +190,10 @@ class _UsersScreenState extends State<UsersScreen> with SingleTickerProviderStat
       itemCount: searchFilteredUsers.length,
       itemBuilder: (context, index) {
         final user = searchFilteredUsers[index];
-        return ListTile(
-          leading: CircleAvatar(
-            backgroundColor: Theme.of(context).primaryColor,
-            child: Text(
-              (user['firstName']?[0] ?? user['email']?[0] ?? '?').toUpperCase(),
-              style: const TextStyle(color: Colors.white),
-            ),
-          ),
-          title: Text(
-            user['firstName'] != null && user['lastName'] != null
-                ? '${user['firstName']} ${user['lastName']}'
-                : user['email'],
-          ),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(user['email'] ?? 'No email'),
-              if (user['role'] != null) Text('Role: ${user['role']}'),
-              if (user['status'] != null) Text('Status: ${user['status']}'),
-              if (user['isEmailVerified'] != null) 
-                Text('Email Verified: ${user['isEmailVerified'] ? 'Yes' : 'No'}'),
-            ],
-          ),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.edit),
-                onPressed: () => _updateUser(user),
-              ),
-              IconButton(
-                icon: const Icon(Icons.delete),
-                onPressed: () => _deleteUser(user['email']),
-              ),
-            ],
-          ),
+        return UserListTile(
+          user: user,
+          onEdit: () => _updateUser(user),
+          onDelete: () => _deleteUser(user['email']),
         );
       },
     );
@@ -233,87 +206,119 @@ class _UsersScreenState extends State<UsersScreen> with SingleTickerProviderStat
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Users Management',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Wrap(
-                spacing: 8,
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: _createUser,
-                    icon: const Icon(Icons.add),
-                    label: const Text('Add User'),
-                  ),
-                ],
-              ),
-            ],
+          SectionHeader(
+            title: 'Users Management',
+          ),
+          const SizedBox(height: 16),
+          CustomSearchBar(
+            controller: _searchController,
+            hintText: 'Search users...',
+            onChanged: (value) => setState(() => _searchQuery = value),
           ),
           const SizedBox(height: 16),
           Row(
             children: [
-              Expanded(
-                child: TextField(
-                  decoration: const InputDecoration(
-                    hintText: 'Search users...',
-                    prefixIcon: Icon(Icons.search),
-                    border: OutlineInputBorder(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: Color(0xFF2D9B88)),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: _selectedRole,
+                    items: const [
+                      DropdownMenuItem(value: 'All', child: Text('All Roles')),
+                      DropdownMenuItem(value: 'admin', child: Text('Admin')),
+                      DropdownMenuItem(value: 'user', child: Text('User')),
+                    ],
+                    onChanged: (value) {
+                      setState(() => _selectedRole = value!);
+                    },
                   ),
-                  onChanged: (value) {
-                    setState(() => _searchQuery = value);
-                  },
                 ),
               ),
               const SizedBox(width: 16),
-              DropdownButton<String>(
-                value: _selectedRole,
-                items: const [
-                  DropdownMenuItem(value: 'All', child: Text('All Roles')),
-                  DropdownMenuItem(value: 'admin', child: Text('Admin')),
-                  DropdownMenuItem(value: 'user', child: Text('User')),
-                ],
-                onChanged: (value) {
-                  setState(() => _selectedRole = value!);
-                },
-              ),
-              const SizedBox(width: 16),
-              DropdownButton<String>(
-                value: _selectedStatus,
-                items: const [
-                  DropdownMenuItem(value: 'All', child: Text('All Status')),
-                  DropdownMenuItem(value: 'active', child: Text('Active')),
-                  DropdownMenuItem(value: 'inactive', child: Text('Inactive')),
-                ],
-                onChanged: (value) {
-                  setState(() => _selectedStatus = value!);
-                },
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: Color(0xFF2D9B88)),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: _selectedStatus,
+                    items: const [
+                      DropdownMenuItem(value: 'All', child: Text('All Status')),
+                      DropdownMenuItem(value: 'active', child: Text('Active')),
+                      DropdownMenuItem(value: 'inactive', child: Text('Inactive')),
+                    ],
+                    onChanged: (value) {
+                      setState(() => _selectedStatus = value!);
+                    },
+                  ),
+                ),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          TabBar(
-            controller: _tabController,
-            tabs: const [
-              Tab(text: 'Firestore Users'),
-              Tab(text: 'Firebase Auth Users'),
-            ],
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 4,
+                ),
+              ],
+            ),
+            child: TabBar(
+              controller: _tabController,
+              labelColor: const Color(0xFF2D9B88),
+              unselectedLabelColor: Colors.grey,
+              indicator: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: const Color(0xFF2D9B88).withOpacity(0.1),
+              ),
+              tabs: const [
+                Tab(text: 'Firestore Users'),
+                Tab(text: 'Firebase Auth Users'),
+              ],
+            ),
           ),
+          const SizedBox(height: 8),
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : TabBarView(
                     controller: _tabController,
                     children: [
-                      Card(child: _buildUserList(_firestoreUsers, false)),
-                      Card(child: _buildUserList(_authUsers, true)),
+                      Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 2,
+                        child: _buildUserList(_firestoreUsers, false),
+                      ),
+                      Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 2,
+                        child: _buildUserList(_authUsers, true),
+                      ),
                     ],
                   ),
+          ),
+          const SizedBox(height: 16),
+          CustomButton(
+            text: 'Add User',
+            onPressed: _createUser,
+            backgroundColor: const Color(0xFF2D9B88),
+            textColor: Colors.white,
           ),
         ],
       ),
@@ -487,6 +492,60 @@ class _UserFormDialogState extends State<_UserFormDialog> {
           child: Text(isEditing ? 'Update' : 'Create'),
         ),
       ],
+    );
+  }
+}
+
+class UserListTile extends StatelessWidget {
+  final Map<String, dynamic> user;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
+
+  const UserListTile({
+    required this.user,
+    required this.onEdit,
+    required this.onDelete,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: CircleAvatar(
+        backgroundColor: Theme.of(context).primaryColor,
+        child: Text(
+          (user['firstName']?[0] ?? user['email']?[0] ?? '?').toUpperCase(),
+          style: const TextStyle(color: Colors.white),
+        ),
+      ),
+      title: Text(
+        user['firstName'] != null && user['lastName'] != null
+            ? '${user['firstName']} ${user['lastName']}'
+            : user['email'],
+      ),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(user['email'] ?? 'No email'),
+          if (user['role'] != null) Text('Role: ${user['role']}'),
+          if (user['status'] != null) Text('Status: ${user['status']}'),
+          if (user['isEmailVerified'] != null)
+            Text('Email Verified: ${user['isEmailVerified'] ? 'Yes' : 'No'}'),
+        ],
+      ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.edit),
+            onPressed: onEdit,
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete),
+            onPressed: onDelete,
+          ),
+        ],
+      ),
     );
   }
 } 

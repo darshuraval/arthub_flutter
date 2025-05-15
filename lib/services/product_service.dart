@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ProductService {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   // In-memory storage for products
   static final Map<String, Map<String, dynamic>> _products = {};
   
@@ -20,11 +23,10 @@ class ProductService {
     Map<String, dynamic>? extra,
     String status = 'active',
   }) async {
-    final now = DateTime.now().toIso8601String();
-    final productId = DateTime.now().millisecondsSinceEpoch.toString();
-    
+    final now = FieldValue.serverTimestamp();
+    final docRef = _firestore.collection('products').doc();
     final product = {
-      'productId': productId,
+      'productId': docRef.id,
       'storeId': storeId,
       'productName': productName,
       'productImage': productImage,
@@ -41,25 +43,30 @@ class ProductService {
       'created_at': now,
       'modified_at': now,
     };
-
-    _products[productId] = product;
+    await docRef.set(product);
     return product;
   }
 
   // Get all products
   Future<List<Map<String, dynamic>>> getAllProducts() async {
-    return _products.values.toList();
+    final querySnapshot = await _firestore.collection('products').get();
+    return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
-  // Get product by ID
   Future<Map<String, dynamic>?> getProductById(String productId) async {
-    return _products[productId];
+    final doc = await _firestore.collection('products').doc(productId).get();
+    return doc.exists ? doc.data() : null;
   }
 
-  // Get products by store ID
+
   Future<List<Map<String, dynamic>>> getProductsByStoreId(String storeId) async {
-    return _products.values.where((product) => product['storeId'] == storeId).toList();
+    final querySnapshot = await _firestore
+      .collection('products')
+      .where('storeId', isEqualTo: storeId)
+      .get();
+    return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
+
 
   // Get products by category
   Future<List<Map<String, dynamic>>> getProductsByCategory(String category) async {
@@ -87,38 +94,32 @@ class ProductService {
     Map<String, dynamic>? deliveryDetails,
     String? status,
   }) async {
-    if (!_products.containsKey(productId)) {
-      return null;
-    }
+    final docRef = _firestore.collection('products').doc(productId);
+    final updates = <String, dynamic>{
+      'modified_at': FieldValue.serverTimestamp(),
+    };
+    if (productName != null) updates['productName'] = productName;
+    if (productImage != null) updates['productImage'] = productImage;
+    if (price != null) updates['price'] = price;
+    if (discount != null) updates['discount'] = discount;
+    if (productDescription != null) updates['productDescription'] = productDescription;
+    if (quantityType != null) updates['quantityType'] = quantityType;
+    if (quantity != null) updates['quantity'] = quantity;
+    if (category != null) updates['category'] = category;
+    if (artist != null) updates['artist'] = artist;
+    if (extra != null) updates['extra'] = extra;
+    if (deliveryDetails != null) updates['deliveryDetails'] = deliveryDetails;
+    if (status != null) updates['status'] = status;
 
-    final product = _products[productId]!;
-    
-    if (productName != null) product['productName'] = productName;
-    if (productImage != null) product['productImage'] = productImage;
-    if (price != null) product['price'] = price;
-    if (discount != null) product['discount'] = discount;
-    if (productDescription != null) product['productDescription'] = productDescription;
-    if (quantityType != null) product['quantityType'] = quantityType;
-    if (quantity != null) product['quantity'] = quantity;
-    if (category != null) product['category'] = category;
-    if (artist != null) product['artist'] = artist;
-    if (extra != null) product['extra'] = extra;
-    if (deliveryDetails != null) product['deliveryDetails'] = deliveryDetails;
-    if (status != null) product['status'] = status;
-    
-    product['modified_at'] = DateTime.now().toIso8601String();
-    
-    _products[productId] = product;
-    return product;
+    await docRef.update(updates);
+    final updatedDoc = await docRef.get();
+    return updatedDoc.data();
   }
 
   // Delete product
   Future<bool> deleteProduct(String productId) async {
-    if (!_products.containsKey(productId)) {
-      return false;
-    }
-    
-    _products.remove(productId);
+    final docRef = _firestore.collection('products').doc(productId);
+    await docRef.delete();
     return true;
   }
 
@@ -167,7 +168,8 @@ class ProductService {
   Future<Map<String, dynamic>?> updateProductDiscount(String productId, double discount) async {
     return updateProduct(productId: productId, discount: discount);
   }
-} 
+}
+
 
 
 
