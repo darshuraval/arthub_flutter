@@ -23,7 +23,7 @@ Future<void> main() async {
   // Initialize Supabase with proper error handling
   try {
     await Supabase.initialize(
-      url: 'https://yywnuzanqxcdishsljpq.supabase.co',
+      url: 'https://yynwntzanqxcdihswljp.supabase.co',
       anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5bndudHphbnF4Y2RpaHN3bGpwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDczMzI0MTMsImV4cCI6MjA2MjkwODQxM30.gnTe49uBfb4fOeTxrJG6xp-LgERzPJ304vEg4bqg7SA',
       debug: true, // Enable debug mode to see more detailed error messages
     );
@@ -31,7 +31,6 @@ Future<void> main() async {
   } catch (e) {
     print('Error initializing Supabase: $e');
   }
-  
   runApp(const MyApp());
 }
 

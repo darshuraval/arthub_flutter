@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../services/cloud_storage_service.dart';
+import '../../services/product_service.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'dart:typed_data';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 Widget _buildImageWidget(String imagePath) {
   if (kIsWeb) {
@@ -38,7 +41,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
 
   Future<void> _fetchProducts() async {
     setState(() => _isLoading = true);
-    final products = await CloudStorageService.getProducts();
+    final products = await ProductService().getAllProducts();
     setState(() {
       _products = products;
       _applyFilters();
@@ -148,9 +151,37 @@ class _ProductsScreenState extends State<ProductsScreen> {
     if (result != null) {
       try {
         if (product == null) {
-          await CloudStorageService.createProduct(result);
+          await ProductService().createProduct(
+            storeId: result['storeId'],
+            productName: result['productName'],
+            productImage: result['productImage'],
+            price: result['price'],
+            quantityType: result['quantityType'],
+            quantity: result['quantity'],
+            category: result['category'],
+            artist: result['artist'],
+            deliveryDetails: result['deliveryDetails'] ?? {},
+            discount: result['discount'],
+            productDescription: result['productDescription'],
+            extra: result['extra'],
+          );
+          print("Product created successfully");  
         } else {
-          await CloudStorageService.updateProduct(product['id'], result);
+          await ProductService().updateProduct(
+            productId: product['productId'],
+            productName: result['productName'],
+            productImage: result['productImage'],
+            price: result['price'],
+            quantityType: result['quantityType'],
+            quantity: result['quantity'],
+            category: result['category'],
+            artist: result['artist'],
+            deliveryDetails: result['deliveryDetails'],
+            discount: result['discount'],
+            productDescription: result['productDescription'],
+            extra: result['extra'],
+          );
+          print("Product updated successfully");
         }
         await _fetchProducts();
       } catch (e) {
@@ -169,9 +200,37 @@ class _ProductsScreenState extends State<ProductsScreen> {
   }
 
   Future<void> _deleteProduct(dynamic productId) async {
-    await CloudStorageService.deleteProduct(productId);
-    _fetchProducts();
+  try {
+    // Get the product to retrieve the image path
+    final product = _products.firstWhere((p) => p['productId'] == productId, orElse: () => {});
+    final imageUrl = product['productImage'] as String?;
+    String? filePath;
+    // Extract file path from the image URL if it exists and is a Supabase URL
+    if (imageUrl != null && imageUrl.contains('supabase.co/storage/v1/object/public/products/')) {
+      // The file path is after .../products/
+      final idx = imageUrl.indexOf('/products/');
+      if (idx != -1) {
+        filePath = imageUrl.substring(idx + '/products/'.length);
+      }
+    }
+    await ProductService().deleteProduct(productId);
+    if (filePath != null) {
+      await CloudStorageService.deleteFile(filePath);
+    }
+    await _fetchProducts();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Product deleted successfully')),
+      );
+    }
+  } catch (e) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to delete product: $e')),
+      );
+    }
   }
+}
 
   @override
   void dispose() {
@@ -317,7 +376,15 @@ class _ProductsScreenState extends State<ProductsScreen> {
                                   if (value == 'edit') {
                                     _showProductForm(product: product);
                                   } else if (value == 'delete') {
-                                    _deleteProduct(product['id']);
+                                    // Use productId, fallback to id if needed
+                                    final id = product['productId'] ?? product['id'];
+                                    if (id != null && id is String) {
+                                      _deleteProduct(id);
+                                    } else {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('Invalid product ID, cannot delete.')),
+                                      );
+                                    }
                                   }
                                 },
                                 itemBuilder: (context) => [
@@ -363,7 +430,9 @@ class _ProductFormDialogState extends State<_ProductFormDialog> {
   late TextEditingController _categoryController;
   late TextEditingController _artistController;
   late TextEditingController _storeIdController;
-  File? _pickedImageFile;
+
+  File? _pickedImageFile; // for mobile
+  Uint8List? _pickedImageBytes; // for web
   String? _uploadedImageUrl;
   bool _isUploading = false;
 
@@ -380,6 +449,7 @@ class _ProductFormDialogState extends State<_ProductFormDialog> {
     _categoryController = TextEditingController(text: widget.product?['category'] ?? '');
     _artistController = TextEditingController(text: widget.product?['artist'] ?? '');
     _storeIdController = TextEditingController(text: widget.product?['storeId'] ?? '');
+    _uploadedImageUrl = widget.product?['productImage'];
   }
 
   @override
@@ -398,51 +468,79 @@ class _ProductFormDialogState extends State<_ProductFormDialog> {
   }
 
   Future<void> _pickImage() async {
-    try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.image,
-        allowMultiple: false,
-      );
-      
-      if (result != null && result.files.single.path != null) {
+    if (kIsWeb) {
+      final result = await FilePicker.platform.pickFiles(type: FileType.image, withData: true);
+      if (result != null && result.files.isNotEmpty) {
         setState(() {
-          _pickedImageFile = File(result.files.single.path!);
-          _uploadedImageUrl = null; // Clear any previous URL
+          _pickedImageBytes = result.files.first.bytes;
+          _pickedImageFile = null; // Clear mobile file
         });
       }
-    } catch (e) {
-      print('Error picking image: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error picking image: $e')),
-      );
+    } else {
+      final result = await FilePicker.platform.pickFiles(type: FileType.image);
+      if (result != null && result.files.isNotEmpty) {
+        setState(() {
+          _pickedImageFile = File(result.files.single.path!);
+          _pickedImageBytes = null; // Clear web bytes
+        });
+      }
     }
   }
 
-  Future<String?> _uploadImageAndGetUrl() async {
-    if (_pickedImageFile == null) {
-      // If no new image was picked, return the existing URL
-      return widget.product?['productImage'];
+  Future<void> _uploadImage() async {
+  if ((_pickedImageFile == null && _pickedImageBytes == null)) return;
+
+  setState(() {
+    _isUploading = true;
+  });
+
+  try {
+    String? imageUrl;
+    if (kIsWeb && _pickedImageBytes != null) {
+      imageUrl = await CloudStorageService.uploadProductImageWeb(_pickedImageBytes!);
+    } else if (_pickedImageFile != null) {
+      imageUrl = await CloudStorageService.uploadProductImage(_pickedImageFile!);
     }
 
-    setState(() => _isUploading = true);
-    try {
-      final url = await CloudStorageService.uploadProductImage(_pickedImageFile!);
-      if (url == null) {
-        throw Exception('Failed to upload image');
-      }
-      setState(() {
-        _uploadedImageUrl = url;
-        _isUploading = false;
-      });
-      return url;
-    } catch (e) {
-      setState(() => _isUploading = false);
-      print('Error uploading image: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error uploading image: $e')),
-      );
-      return null;
+    if (imageUrl == null) {
+      throw Exception('Image upload failed');
     }
+    else {
+      _uploadedImageUrl = imageUrl;
+      _imageController.text = imageUrl ?? '';
+    }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Image upload failed: $e')),
+    );
+  } finally {
+    setState(() {
+      _isUploading = false;
+    });
+  }
+}
+
+  void _saveForm() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    if (_pickedImageFile != null || _pickedImageBytes != null) {
+      await _uploadImage();
+    }
+
+    final productData = {
+      'productName': _nameController.text.trim(),
+      'productImage': _uploadedImageUrl ?? '',
+      'price': double.tryParse(_priceController.text) ?? 0,
+      'discount': double.tryParse(_discountController.text) ?? 0,
+      'productDescription': _descController.text.trim(),
+      'quantity': int.tryParse(_quantityController.text) ?? 0,
+      'quantityType': _quantityTypeController.text.trim(),
+      'category': _categoryController.text.trim(),
+      'artist': _artistController.text.trim(),
+      'storeId': _storeIdController.text.trim(),
+    };
+
+    Navigator.of(context).pop(productData);
   }
 
   @override
@@ -457,41 +555,60 @@ class _ProductFormDialogState extends State<_ProductFormDialog> {
             children: [
               GestureDetector(
                 onTap: _pickImage,
-                child: _pickedImageFile != null
-                    ? Image.file(_pickedImageFile!, height: 80)
-                    : (_uploadedImageUrl != null && _uploadedImageUrl!.isNotEmpty)
-                        ? Image.network(_uploadedImageUrl!, height: 80)
-                        : Container(
-                            height: 80,
-                            width: 80,
-                            color: Colors.grey[200],
-                            child: const Icon(Icons.add_a_photo, size: 32),
-                          ),
+                child: _isUploading
+                    ? const CircularProgressIndicator()
+                    : (_pickedImageFile != null
+                        ? Image.file(_pickedImageFile!, height: 150, width: 150, fit: BoxFit.cover)
+                        : (_pickedImageBytes != null
+                            ? Image.memory(_pickedImageBytes!, height: 150, width: 150, fit: BoxFit.cover)
+                            : (_uploadedImageUrl != null && _uploadedImageUrl!.isNotEmpty
+                                ? Image.network(_uploadedImageUrl!, height: 150, width: 150, fit: BoxFit.cover)
+                                : Container(
+                                    height: 150,
+                                    width: 150,
+                                    color: Colors.grey[300],
+                                    child: const Icon(Icons.add_a_photo, size: 50, color: Colors.grey),
+                                  )))),
               ),
-              if (_isUploading) const LinearProgressIndicator(),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(labelText: 'Product Name'),
-                validator: (v) => v == null || v.isEmpty ? 'Enter product name' : null,
+                validator: (value) => (value == null || value.trim().isEmpty) ? 'Please enter product name' : null,
               ),
               TextFormField(
                 controller: _priceController,
                 decoration: const InputDecoration(labelText: 'Price'),
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) return 'Please enter price';
+                  if (double.tryParse(value) == null) return 'Enter valid price';
+                  return null;
+                },
               ),
               TextFormField(
                 controller: _discountController,
                 decoration: const InputDecoration(labelText: 'Discount'),
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                validator: (value) {
+                  if (value != null && value.isNotEmpty && double.tryParse(value) == null) return 'Enter valid discount';
+                  return null;
+                },
               ),
               TextFormField(
                 controller: _descController,
                 decoration: const InputDecoration(labelText: 'Description'),
+                maxLines: 2,
               ),
               TextFormField(
                 controller: _quantityController,
                 decoration: const InputDecoration(labelText: 'Quantity'),
                 keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) return 'Please enter quantity';
+                  if (int.tryParse(value) == null) return 'Enter valid quantity';
+                  return null;
+                },
               ),
               TextFormField(
                 controller: _quantityTypeController,
@@ -514,42 +631,9 @@ class _ProductFormDialogState extends State<_ProductFormDialog> {
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
-        ),
-        ElevatedButton(
-          onPressed: () async {
-            if (_formKey.currentState!.validate()) {
-              String? imageUrl;
-              try {
-                imageUrl = await _uploadImageAndGetUrl();
-                if (imageUrl == null || imageUrl.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Image upload failed.')));
-                  return;
-                }
-                Navigator.pop(context, {
-                  'productName': _nameController.text,
-                  'productImage': imageUrl,
-                  'price': _priceController.text,
-                  'discount': _discountController.text,
-                  'productDescription': _descController.text,
-                  'quantity': _quantityController.text,
-                  'quantityType': _quantityTypeController.text,
-                  'category': _categoryController.text,
-                  'artist': _artistController.text,
-                  'storeId': _storeIdController.text,
-                  'deliveryDetails': {},
-                  'extra': {},
-                });
-              } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
-              }
-            }
-          },
-          child: Text(widget.product == null ? 'Add' : 'Update'),
-        ),
+        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
+        ElevatedButton(onPressed: _saveForm, child: const Text('Save')),
       ],
     );
   }
-} 
+}
