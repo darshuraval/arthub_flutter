@@ -1,10 +1,13 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class OrderService {
   // In-memory storage for orders
   static final Map<String, Map<String, dynamic>> _orders = {};
   
   // Create a new order
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   Future<Map<String, dynamic>> createOrder({
     required String productId,
     required double amount,
@@ -36,91 +39,97 @@ class OrderService {
       'updated_at': now,
     };
 
-    _orders[orderId] = order;
+    await _firestore.collection('orders').doc(orderId).set(order);
     return order;
   }
 
   // Get all orders
   Future<List<Map<String, dynamic>>> getAllOrders() async {
-    return _orders.values.toList();
+    final querySnapshot = await _firestore.collection('orders').get();
+    return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
   // Get order by ID
   Future<Map<String, dynamic>?> getOrderById(String orderId) async {
-    return _orders[orderId];
+    final doc = await _firestore.collection('orders').doc(orderId).get();
+    return doc.exists ? doc.data() : null;
   }
 
   // Get orders by buyer ID
   Future<List<Map<String, dynamic>>> getOrdersByBuyerId(String buyerId) async {
-    return _orders.values.where((order) => order['buyerId'] == buyerId).toList();
+    final querySnapshot = await _firestore.collection('orders').where('buyerId', isEqualTo: buyerId).get();
+    return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
   // Get orders by seller ID
   Future<List<Map<String, dynamic>>> getOrdersBySellerId(String sellerId) async {
-    return _orders.values.where((order) => order['sellerId'] == sellerId).toList();
+    final querySnapshot = await _firestore.collection('orders').where('sellerId', isEqualTo: sellerId).get();
+    return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
   // Get orders by store ID
   Future<List<Map<String, dynamic>>> getOrdersByStoreId(String storeId) async {
-    return _orders.values.where((order) => order['storeId'] == storeId).toList();
+    final querySnapshot = await _firestore.collection('orders').where('storeId', isEqualTo: storeId).get();
+    return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
   // Update order
   Future<Map<String, dynamic>?> updateOrder({
     required String orderId,
-    String? transactionId,
+    String? productId,
     double? amount,
-    double? discount,
+    String? buyerId,
+    String? sellerId,
+    String? storeId,
     String? paymentMethod,
+    String? transactionId,
+    double? discount,
     String? paidAt,
     String? status,
   }) async {
-    if (!_orders.containsKey(orderId)) {
-      return null;
-    }
-
-    final order = _orders[orderId]!;
-    
-    if (transactionId != null) order['transactionId'] = transactionId;
+    final doc = await _firestore.collection('orders').doc(orderId).get();
+    if (!doc.exists) return null;
+    final order = doc.data()!;
+    if (productId != null) order['productId'] = productId;
     if (amount != null) order['amount'] = amount;
-    if (discount != null) order['discount'] = discount;
+    if (buyerId != null) order['buyerId'] = buyerId;
+    if (sellerId != null) order['sellerId'] = sellerId;
+    if (storeId != null) order['storeId'] = storeId;
     if (paymentMethod != null) order['paymentMethod'] = paymentMethod;
+    if (transactionId != null) order['transactionId'] = transactionId;
+    if (discount != null) order['discount'] = discount;
     if (paidAt != null) order['paid_at'] = paidAt;
     if (status != null) order['status'] = status;
-    
     order['updated_at'] = DateTime.now().toIso8601String();
-    
-    _orders[orderId] = order;
+    await doc.reference.update(order);
     return order;
   }
 
   // Delete order
   Future<bool> deleteOrder(String orderId) async {
-    if (!_orders.containsKey(orderId)) {
-      return false;
-    }
-    
-    _orders.remove(orderId);
+    final doc = await _firestore.collection('orders').doc(orderId).get();
+    if (!doc.exists) return false;
+    await doc.reference.delete();
     return true;
   }
 
   // Search orders
   Future<List<Map<String, dynamic>>> searchOrders(String query) async {
     query = query.toLowerCase();
-    return _orders.values.where((order) {
-      return order['orderId'].toString().toLowerCase().contains(query) ||
-             order['transactionId']?.toString().toLowerCase().contains(query) ?? false;
-    }).toList();
+    final querySnapshot = await _firestore.collection('orders').where('orderId', isEqualTo: query).get();
+    return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
   // Get orders by status
   Future<List<Map<String, dynamic>>> getOrdersByStatus(String status) async {
-    return _orders.values.where((order) => order['status'] == status).toList();
+    final querySnapshot = await _firestore.collection('orders').where('status', isEqualTo: status).get();
+    return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
   // Get orders by payment method
   Future<List<Map<String, dynamic>>> getOrdersByPaymentMethod(String paymentMethod) async {
-    return _orders.values.where((order) => order['paymentMethod'] == paymentMethod).toList();
+    final querySnapshot = await _firestore.collection('orders').where('paymentMethod', isEqualTo: paymentMethod).get();
+    return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
   // Get orders by date range
@@ -128,15 +137,19 @@ class OrderService {
     required DateTime startDate,
     required DateTime endDate,
   }) async {
-    return _orders.values.where((order) {
-      final orderDate = DateTime.parse(order['created_at']);
-      return orderDate.isAfter(startDate) && orderDate.isBefore(endDate);
-    }).toList();
+    final querySnapshot = await _firestore.collection('orders').where('created_at', isGreaterThanOrEqualTo: startDate.toIso8601String()).where('created_at', isLessThanOrEqualTo: endDate.toIso8601String()).get();
+    return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
   // Update order status
   Future<Map<String, dynamic>?> updateOrderStatus(String orderId, String status) async {
-    return updateOrder(orderId: orderId, status: status);
+    final doc = await _firestore.collection('orders').doc(orderId).get();
+    if (!doc.exists) return null;
+    final order = doc.data()!;
+    order['status'] = status;
+    order['updated_at'] = DateTime.now().toIso8601String();
+    await doc.reference.update(order);
+    return order;
   }
 
   // Update payment details
@@ -146,13 +159,16 @@ class OrderService {
     required String paymentMethod,
     required String paidAt,
   }) async {
-    return updateOrder(
-      orderId: orderId,
-      transactionId: transactionId,
-      paymentMethod: paymentMethod,
-      paidAt: paidAt,
-      status: 'paid',
-    );
+    final doc = await _firestore.collection('orders').doc(orderId).get();
+    if (!doc.exists) return null;
+    final order = doc.data()!;
+    order['transactionId'] = transactionId;
+    order['paymentMethod'] = paymentMethod;
+    order['paid_at'] = paidAt;
+    order['status'] = 'paid';
+    order['updated_at'] = DateTime.now().toIso8601String();
+    await doc.reference.update(order);
+    return order;
   }
 
   // Get total sales amount
@@ -162,24 +178,32 @@ class OrderService {
     DateTime? startDate,
     DateTime? endDate,
   }) async {
-    var orders = _orders.values;
-    
+    final querySnapshot = await _firestore.collection('orders').get();
+    var filtered = querySnapshot.docs;
     if (storeId != null) {
-      orders = orders.where((order) => order['storeId'] == storeId);
+      filtered = filtered.where((order) => order.data()['storeId'] == storeId).toList();
     }
-    
     if (sellerId != null) {
-      orders = orders.where((order) => order['sellerId'] == sellerId);
+      filtered = filtered.where((order) => order.data()['sellerId'] == sellerId).toList();
     }
-    
     if (startDate != null && endDate != null) {
-      orders = orders.where((order) {
-        final orderDate = DateTime.parse(order['created_at']);
+      filtered = filtered.where((order) {
+        final orderDate = DateTime.parse(order.data()['created_at']);
         return orderDate.isAfter(startDate) && orderDate.isBefore(endDate);
-      });
+      }).toList();
     }
-    
-    return orders.fold(0.0, (sum, order) => sum + (order['amount'] as double));
+    final amounts = filtered.map((order) {
+  final value = order.data()['amount'];
+  if (value == null) return 0.0;
+  if (value is int) return value.toDouble();
+  if (value is double) return value;
+  return 0.0;
+}).toList();
+double total = 0.0;
+for (final amt in amounts) {
+  total += amt;
+}
+return total;
   }
 } 
 

@@ -1,9 +1,9 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class StoreService {
-  // In-memory storage for stores
-  static final Map<String, Map<String, dynamic>> _stores = {};
-  
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   // Create a new store
   Future<Map<String, dynamic>> createStore({
     required String userId,
@@ -38,23 +38,26 @@ class StoreService {
       'updated_at': now,
     };
 
-    _stores[storeId] = store;
+    await _firestore.collection('stores').doc(storeId).set(store);
     return store;
   }
 
   // Get all stores
   Future<List<Map<String, dynamic>>> getAllStores() async {
-    return _stores.values.toList();
+    final querySnapshot = await _firestore.collection('stores').get();
+    return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
   // Get store by ID
   Future<Map<String, dynamic>?> getStoreById(String storeId) async {
-    return _stores[storeId];
+    final doc = await _firestore.collection('stores').doc(storeId).get();
+    return doc.exists ? doc.data() : null;
   }
 
   // Get stores by user ID
   Future<List<Map<String, dynamic>>> getStoresByUserId(String userId) async {
-    return _stores.values.where((store) => store['userId'] == userId).toList();
+    final querySnapshot = await _firestore.collection('stores').where('userId', isEqualTo: userId).get();
+    return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
   // Update store
@@ -71,12 +74,9 @@ class StoreService {
     String? pincode,
     String? status,
   }) async {
-    if (!_stores.containsKey(storeId)) {
-      return null;
-    }
-
-    final store = _stores[storeId]!;
-    
+    final doc = await _firestore.collection('stores').doc(storeId).get();
+    if (!doc.exists) return null;
+    final store = doc.data()!;
     if (storeName != null) store['storeName'] = storeName;
     if (website != null) store['website'] = website;
     if (description != null) store['description'] = description;
@@ -90,39 +90,35 @@ class StoreService {
     
     store['updated_at'] = DateTime.now().toIso8601String();
     
-    _stores[storeId] = store;
+    await _firestore.collection('stores').doc(storeId).set(store);
     return store;
   }
 
   // Delete store
   Future<bool> deleteStore(String storeId) async {
-    if (!_stores.containsKey(storeId)) {
-      return false;
-    }
-    
-    _stores.remove(storeId);
+    final doc = await _firestore.collection('stores').doc(storeId).get();
+    if (!doc.exists) return false;
+    await doc.reference.delete();
     return true;
   }
 
   // Search stores
   Future<List<Map<String, dynamic>>> searchStores(String query) async {
     query = query.toLowerCase();
-    return _stores.values.where((store) {
-      return store['storeName'].toString().toLowerCase().contains(query) ||
-             store['city'].toString().toLowerCase().contains(query) ||
-             store['state'].toString().toLowerCase().contains(query) ||
-             store['country'].toString().toLowerCase().contains(query);
-    }).toList();
+    final querySnapshot = await _firestore.collection('stores').where('storeName', isEqualTo: query).get();
+    return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
   // Get stores by type
   Future<List<Map<String, dynamic>>> getStoresByType(String storeType) async {
-    return _stores.values.where((store) => store['storeType'] == storeType).toList();
+    final querySnapshot = await _firestore.collection('stores').where('storeType', isEqualTo: storeType).get();
+    return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
   // Get stores by status
   Future<List<Map<String, dynamic>>> getStoresByStatus(String status) async {
-    return _stores.values.where((store) => store['status'] == status).toList();
+    final querySnapshot = await _firestore.collection('stores').where('status', isEqualTo: status).get();
+    return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
   // Get stores by location
@@ -131,17 +127,19 @@ class StoreService {
     String? state,
     String? country,
   }) async {
-    return _stores.values.where((store) {
-      if (city != null && store['city'] != city) return false;
-      if (state != null && store['state'] != state) return false;
-      if (country != null && store['country'] != country) return false;
-      return true;
-    }).toList();
+    final querySnapshot = await _firestore.collection('stores').where('city', isEqualTo: city).where('state', isEqualTo: state).where('country', isEqualTo: country).get();
+    return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
   // Update store status
   Future<Map<String, dynamic>?> updateStoreStatus(String storeId, String status) async {
-    return updateStore(storeId: storeId, status: status);
+    final doc = await _firestore.collection('stores').doc(storeId).get();
+    if (!doc.exists) return null;
+    final store = doc.data()!;
+    store['status'] = status;
+    store['updated_at'] = DateTime.now().toIso8601String();
+    await doc.reference.update(store);
+    return store;
   }
 } 
 

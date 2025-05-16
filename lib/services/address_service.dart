@@ -1,8 +1,8 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AddressService {
-  // In-memory storage for addresses
-  static final Map<String, Map<String, dynamic>> _addresses = {};
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   
   // Create a new address
   Future<Map<String, dynamic>> createAddress({
@@ -34,23 +34,26 @@ class AddressService {
       'updated_at': now,
     };
 
-    _addresses[addressId] = address;
+    await _firestore.collection('addresses').doc(addressId).set(address);
     return address;
   }
 
   // Get all addresses
   Future<List<Map<String, dynamic>>> getAllAddresses() async {
-    return _addresses.values.toList();
+    final querySnapshot = await _firestore.collection('addresses').get();
+    return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
   // Get address by ID
   Future<Map<String, dynamic>?> getAddressById(String addressId) async {
-    return _addresses[addressId];
+    final doc = await _firestore.collection('addresses').doc(addressId).get();
+    return doc.exists ? doc.data() : null;
   }
 
   // Get addresses by user ID
   Future<List<Map<String, dynamic>>> getAddressesByUserId(String userId) async {
-    return _addresses.values.where((address) => address['userId'] == userId).toList();
+    final querySnapshot = await _firestore.collection('addresses').where('userId', isEqualTo: userId).get();
+    return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
   // Update address
@@ -65,11 +68,12 @@ class AddressService {
     String? pincode,
     String? status,
   }) async {
-    if (!_addresses.containsKey(addressId)) {
+    final doc = await _firestore.collection('addresses').doc(addressId).get();
+    if (!doc.exists) {
       return null;
     }
 
-    final address = _addresses[addressId]!;
+    final address = doc.data()!;
     
     if (street != null) address['street'] = street;
     if (city != null) address['city'] = city;
@@ -82,56 +86,66 @@ class AddressService {
     
     address['updated_at'] = DateTime.now().toIso8601String();
     
-    _addresses[addressId] = address;
+    await _firestore.collection('addresses').doc(addressId).update(address);
     return address;
   }
 
   // Delete address
   Future<bool> deleteAddress(String addressId) async {
-    if (!_addresses.containsKey(addressId)) {
+    final doc = await _firestore.collection('addresses').doc(addressId).get();
+    if (!doc.exists) {
       return false;
     }
     
-    _addresses.remove(addressId);
+    await _firestore.collection('addresses').doc(addressId).delete();
     return true;
   }
 
   // Search addresses
   Future<List<Map<String, dynamic>>> searchAddresses(String query) async {
     query = query.toLowerCase();
-    return _addresses.values.where((address) {
-      return address['street'].toString().toLowerCase().contains(query) ||
-             address['city'].toString().toLowerCase().contains(query) ||
-             address['district'].toString().toLowerCase().contains(query) ||
-             address['state'].toString().toLowerCase().contains(query) ||
-             address['country'].toString().toLowerCase().contains(query) ||
-             address['pincode'].toString().toLowerCase().contains(query);
-    }).toList();
+    final querySnapshot = await _firestore.collection('addresses').get();
+    return querySnapshot.docs
+        .map((doc) => doc.data())
+        .where((address) =>
+          (address['street']?.toString().toLowerCase().contains(query) ?? false) ||
+          (address['city']?.toString().toLowerCase().contains(query) ?? false) ||
+          (address['district']?.toString().toLowerCase().contains(query) ?? false) ||
+          (address['state']?.toString().toLowerCase().contains(query) ?? false) ||
+          (address['country']?.toString().toLowerCase().contains(query) ?? false) ||
+          (address['pincode']?.toString().toLowerCase().contains(query) ?? false)
+        )
+        .toList();
   }
 
   // Get addresses by city
   Future<List<Map<String, dynamic>>> getAddressesByCity(String city) async {
-    return _addresses.values.where((address) => address['city'] == city).toList();
+    final querySnapshot = await _firestore.collection('addresses').where('city', isEqualTo: city).get();
+    return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
   // Get addresses by state
   Future<List<Map<String, dynamic>>> getAddressesByState(String state) async {
-    return _addresses.values.where((address) => address['state'] == state).toList();
+    final querySnapshot = await _firestore.collection('addresses').where('state', isEqualTo: state).get();
+    return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
   // Get addresses by country
   Future<List<Map<String, dynamic>>> getAddressesByCountry(String country) async {
-    return _addresses.values.where((address) => address['country'] == country).toList();
+    final querySnapshot = await _firestore.collection('addresses').where('country', isEqualTo: country).get();
+    return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
   // Get addresses by pincode
   Future<List<Map<String, dynamic>>> getAddressesByPincode(String pincode) async {
-    return _addresses.values.where((address) => address['pincode'] == pincode).toList();
+    final querySnapshot = await _firestore.collection('addresses').where('pincode', isEqualTo: pincode).get();
+    return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
   // Get addresses by status
   Future<List<Map<String, dynamic>>> getAddressesByStatus(String status) async {
-    return _addresses.values.where((address) => address['status'] == status).toList();
+    final querySnapshot = await _firestore.collection('addresses').where('status', isEqualTo: status).get();
+    return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
   // Update address status
@@ -146,24 +160,20 @@ class AddressService {
     String? country,
     String? pincode,
   }) async {
-    return _addresses.values.where((address) {
-      if (city != null && address['city'] != city) return false;
-      if (state != null && address['state'] != state) return false;
-      if (country != null && address['country'] != country) return false;
-      if (pincode != null && address['pincode'] != pincode) return false;
-      return true;
-    }).toList();
+    final querySnapshot = await _firestore.collection('addresses').where('city', isEqualTo: city).where('state', isEqualTo: state).where('country', isEqualTo: country).where('pincode', isEqualTo: pincode).get();
+    return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
   // Get address statistics
   Future<Map<String, dynamic>> getAddressStatistics() async {
-    final totalAddresses = _addresses.length;
-    final activeAddresses = _addresses.values.where((a) => a['status'] == 'active').length;
-    final inactiveAddresses = _addresses.values.where((a) => a['status'] == 'inactive').length;
+    final querySnapshot = await _firestore.collection('addresses').get();
+    final totalAddresses = querySnapshot.docs.length;
+    final activeAddresses = querySnapshot.docs.where((doc) => doc['status'] == 'active').length;
+    final inactiveAddresses = querySnapshot.docs.where((doc) => doc['status'] == 'inactive').length;
     
-    final cities = _addresses.values.map((a) => a['city']).toSet().length;
-    final states = _addresses.values.map((a) => a['state']).toSet().length;
-    final countries = _addresses.values.map((a) => a['country']).toSet().length;
+    final cities = querySnapshot.docs.map((doc) => doc['city']).toSet().length;
+    final states = querySnapshot.docs.map((doc) => doc['state']).toSet().length;
+    final countries = querySnapshot.docs.map((doc) => doc['country']).toSet().length;
 
     return {
       'totalAddresses': totalAddresses,
@@ -177,16 +187,16 @@ class AddressService {
 
   // Validate address
   Future<bool> validateAddress(String addressId) async {
-    final address = await getAddressById(addressId);
-    if (address == null) return false;
+    final doc = await _firestore.collection('addresses').doc(addressId).get();
+    if (!doc.exists) return false;
 
     // Check if all required fields are present and not empty
-    return address['street']?.isNotEmpty == true &&
-           address['city']?.isNotEmpty == true &&
-           address['district']?.isNotEmpty == true &&
-           address['state']?.isNotEmpty == true &&
-           address['country']?.isNotEmpty == true &&
-           address['pincode']?.isNotEmpty == true;
+    return doc['street']?.isNotEmpty == true &&
+           doc['city']?.isNotEmpty == true &&
+           doc['district']?.isNotEmpty == true &&
+           doc['state']?.isNotEmpty == true &&
+           doc['country']?.isNotEmpty == true &&
+           doc['pincode']?.isNotEmpty == true;
   }
 } 
 
