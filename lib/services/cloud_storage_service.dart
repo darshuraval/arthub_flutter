@@ -54,9 +54,13 @@ class CloudStorageService {
       // Check if Supabase is initialized
       if (Supabase.instance.client.auth.currentSession == null ||
     Supabase.instance.client.auth.currentSession!.isExpired) {
-  print('Supabase client is not initialized or session is expired');
-  return null;
-}
+      await Supabase.initialize(
+          url: 'https://yynwntzanqxcdihswljp.supabase.co',
+          anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5bndudHphbnF4Y2RpaHN3bGpwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDczMzI0MTMsImV4cCI6MjA2MjkwODQxM30.gnTe49uBfb4fOeTxrJG6xp-LgERzPJ304vEg4bqg7SA',
+          debug: true, // Enable debug mode to see more detailed error messages
+        );
+        print('Supabase client is not initialized or session is expired');
+      }
 
       // Generate a unique file name using timestamp and original file name
       final fileName = '${DateTime.now().millisecondsSinceEpoch}_${file.path.split('/').last}';

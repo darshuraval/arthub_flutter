@@ -6,6 +6,8 @@ import 'orders_screen.dart';
 import 'payments_screen.dart';
 import 'address_screen.dart';
 import 'profile_screen.dart';
+import 'package:arthub_flutter/services/auth_service.dart';
+import 'package:arthub_flutter/screens/auth/login_screen.dart';
 
 class AdminHomeScreen extends StatefulWidget {
   const AdminHomeScreen({super.key});
@@ -42,7 +44,9 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () {
-              // TODO: Implement logout
+              AuthService().signOut();
+              Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (context) => const LoginScreen()));
             },
           ),
         ],

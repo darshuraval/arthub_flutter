@@ -50,9 +50,9 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.white,
       ),
       // home: const WidgetTestScreen(),
-      home: const AdminHomeScreen(),
+      // home: const AdminHomeScreen(),
       // home: const LoginScreen(),
-      // home: const SplashScreen(),
+      home: const SplashScreen(),
       debugShowCheckedModeBanner: false,
     );
   }
