@@ -38,7 +38,6 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           IconButton(
             icon: const Icon(Icons.notifications),
             onPressed: () {
-              // TODO: Implement notifications
             },
           ),
           IconButton(

@@ -51,16 +51,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
     });
 
     try {
-      // Create user with email and password
       final userCredential = await _auth.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
 
-      // Send email verification
       await userCredential.user?.sendEmailVerification();
 
-      // Store additional user data in Firestore
       await _firestore.collection('users').doc(userCredential.user!.uid).set({
         'firstName': _firstNameController.text.trim(),
         'lastName': _lastNameController.text.trim(),
@@ -71,7 +68,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         'role': 'user',
       });
 
-      // Navigate to email verification screen
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => EmailVerificationScreen(

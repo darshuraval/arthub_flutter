@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:arthub_flutter/services/product_service.dart';
+import 'package:arthub_flutter/screens/user/product_details_screen.dart';
 
 class CategoryProductsScreen extends StatefulWidget {
   final String categoryName;
@@ -48,7 +49,6 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 16),
-            // Filter row (static UI, not functional)
             Row(
               children: [
                 _buildFilterChip(Icons.sort, 'Sort by'),
@@ -85,74 +85,88 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
                             ],
                           ),
                           margin: EdgeInsets.only(bottom: 4),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-                                child: Image.network(
-                                  p['productImage'] ?? 'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//product_logo.png',
-                                  height: 240,
-                                  width: double.infinity,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    // If network image fails, show asset image
-                                    return Image.asset(
-                                      'assets/images/product_logo.png',
+                          child: Material(
+                              color: Colors.transparent, 
+                              child: InkWell(
+                                onTap: () {
+                                  print('Tapped!');
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ProductDetailsScreen(product: p),
+                                    ),
+                                  );
+                                },
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                                    child: Image.network(
+                                      p['productImage'] ?? 'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//product_logo.png',
                                       height: 240,
                                       width: double.infinity,
                                       fit: BoxFit.cover,
                                       errorBuilder: (context, error, stackTrace) {
-                                        // If asset image fails, show the default network placeholder
-                                        return Image.network(
-                                          'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//product_logo.png',
+                                        // If network image fails, show asset image
+                                        return Image.asset(
+                                          'assets/images/product_logo.png',
                                           height: 240,
                                           width: double.infinity,
                                           fit: BoxFit.cover,
+                                          errorBuilder: (context, error, stackTrace) {
+                                            // If asset image fails, show the default network placeholder
+                                            return Image.network(
+                                              'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//product_logo.png',
+                                              height: 240,
+                                              width: double.infinity,
+                                              fit: BoxFit.cover,
+                                            );
+                                          },
                                         );
                                       },
-                                    );
-                                  },
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      p['productName'] ?? '',
-                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                    SizedBox(height: 4),
-                                    Row(
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        if (p['oldPrice'] != null && p['oldPrice'] > 0)
-                                          Text(
-                                            '\u20B9${p['oldPrice'].toString()}',
-                                            style: TextStyle(
-                                              color: Colors.grey,
-                                              fontSize: 13,
-                                              decoration: TextDecoration.lineThrough,
-                                            ),
-                                          ),
-                                        if (p['oldPrice'] != null && p['oldPrice'] > 0) SizedBox(width: 6),
                                         Text(
-                                          '\u20B9${p['price']?.toStringAsFixed(2) ?? '--'}',
-                                          style: TextStyle(
-                                            color: Color(0xFF21967A),
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16,
-                                          ),
+                                          p['productName'] ?? '',
+                                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        SizedBox(height: 4),
+                                        Row(
+                                          children: [
+                                            if (p['oldPrice'] != null && p['oldPrice'] > 0)
+                                              Text(
+                                                '\u20B9${p['oldPrice'].toString()}',
+                                                style: TextStyle(
+                                                  color: Colors.grey,
+                                                  fontSize: 13,
+                                                  decoration: TextDecoration.lineThrough,
+                                                ),
+                                              ),
+                                            if (p['oldPrice'] != null && p['oldPrice'] > 0) SizedBox(width: 6),
+                                            Text(
+                                              '\u20B9${p['price']?.toStringAsFixed(2) ?? '--'}',
+                                              style: TextStyle(
+                                                color: Color(0xFF21967A),
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
                         );
                       },

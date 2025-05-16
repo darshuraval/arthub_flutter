@@ -61,7 +61,7 @@ class _MyStoreScreenState extends State<MyStoreScreen> {
               child: Column(
                 children: [
                   Image.asset(
-                    'assets/images/store_setup.png', // Make sure to add this image
+                    'assets/images/store_setup.png', 
                     height: 120,
                   ),
                   const SizedBox(height: 16),
@@ -133,7 +133,6 @@ class _MyStoreScreenState extends State<MyStoreScreen> {
         child: CustomButton(
           text: 'Create',
           onPressed: () {
-            // Handle store creation
             print('Creating store...');
           },
           backgroundColor: const Color(0xFF2D9B88),

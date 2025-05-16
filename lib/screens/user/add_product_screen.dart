@@ -2,6 +2,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:arthub_flutter/services/product_service.dart';
+import 'package:arthub_flutter/services/cloud_storage_service.dart';
+import 'package:flutter/foundation.dart'; 
+
 
 class AddProductScreen extends StatefulWidget {
   final String storeId;
@@ -12,6 +15,10 @@ class AddProductScreen extends StatefulWidget {
 }
 
 class _AddProductScreenState extends State<AddProductScreen> {
+  Uint8List? _webImageBytes;
+
+
+
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _categoryController = TextEditingController();
@@ -35,6 +42,12 @@ class _AddProductScreenState extends State<AddProductScreen> {
       setState(() {
         _images.addAll(picked.take(4 - _images.length));
       });
+      if (kIsWeb && _images.isNotEmpty) {
+        final bytes = await _images.first.readAsBytes();
+        setState(() {
+          _webImageBytes = bytes;
+        });
+      }
     }
   }
 
@@ -46,12 +59,27 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
   Future<void> _addProduct() async {
     if (!_formKey.currentState!.validate()) return;
-    // For now, use the first image path as productImage (stub)
-    final imageUrl = _images.isNotEmpty ? _images.first.path : '';
-    // Delivery details and extra as example
-    final deliveryDetails = {'location': _locationController.text};
-    final extra = {'details': _additionalDetails};
+    String imageUrl = '';
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
     try {
+      if (_images.isNotEmpty) {
+        final image = _images.first;
+        if (kIsWeb) {
+          final bytes = await image.readAsBytes();
+          final uploadedUrl = await CloudStorageService.uploadProductImageWeb(bytes);
+          if (uploadedUrl != null) imageUrl = uploadedUrl;
+        } else {
+          final file = File(image.path);
+          final uploadedUrl = await CloudStorageService.uploadProductImage(file);
+          if (uploadedUrl != null) imageUrl = uploadedUrl;
+        }
+      }
+      final deliveryDetails = {'location': _locationController.text};
+      final extra = {'details': _additionalDetails};
       await ProductService().createProduct(
         storeId: widget.storeId,
         productName: _nameController.text.trim(),
@@ -68,34 +96,46 @@ class _AddProductScreenState extends State<AddProductScreen> {
         status: 'active',
       );
       if (mounted) {
+        Navigator.of(context).pop(); 
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Product added!')));
         Navigator.pop(context);
       }
     } catch (e) {
+      Navigator.of(context).pop(); 
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
   }
 
+
   Widget _productCardPreview() {
     final imageWidget = _images.isNotEmpty
-        ? ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-            child: Image.file(
-              File(_images.first.path),
-              height: 120,
-              width: double.infinity,
-              fit: BoxFit.cover,
-            ),
-          )
-        : ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-            child: Image.asset(
-              'images/product_logo.png',
-              height: 120,
-              width: double.infinity,
-              fit: BoxFit.cover,
-            ),
-          );
+    ? ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        child: kIsWeb
+            ? (_webImageBytes != null
+                ? Image.memory(
+                    _webImageBytes!,
+                    height: 120,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  )
+                : const SizedBox(height: 120)) 
+            : Image.file(
+                File(_images.first.path),
+                height: 120,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
+      )
+    : ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        child: Image.network(
+          'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//product_logo.png',
+          height: 120,
+          width: double.infinity,
+          fit: BoxFit.cover,
+        ),
+      );
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
@@ -159,7 +199,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _productCardPreview(),
-              // Image picker
               Row(
                 children: [
                   GestureDetector(

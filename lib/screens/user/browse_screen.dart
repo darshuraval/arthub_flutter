@@ -12,7 +12,6 @@ class _BrowseScreenState extends State<BrowseScreen> {
   bool _loading = true;
   String? _error;
 
-  // Sorting and filtering state
   String _sortOption = 'Name Asc';
   String? _selectedCategory;
   String? _selectedShop;
@@ -85,7 +84,6 @@ class _BrowseScreenState extends State<BrowseScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Search Bar
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
             child: Container(
@@ -119,12 +117,10 @@ class _BrowseScreenState extends State<BrowseScreen> {
               ),
             ),
           ),
-          // Sort & Filter Dropdowns
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
               children: [
-                // Sort Dropdown
                 DropdownButton<String>(
                   value: _sortOption,
                   items: [
@@ -141,7 +137,6 @@ class _BrowseScreenState extends State<BrowseScreen> {
                   icon: Icon(Icons.sort, color: Color(0xFF21967A)),
                 ),
                 SizedBox(width: 16),
-                // Category Dropdown
                 DropdownButton<String>(
                   value: _selectedCategory,
                   hint: Text('Category'),
@@ -157,7 +152,6 @@ class _BrowseScreenState extends State<BrowseScreen> {
                   icon: Icon(Icons.category_outlined, color: Color(0xFF21967A)),
                 ),
                 SizedBox(width: 16),
-                // Shop Dropdown
                 DropdownButton<String>(
                   value: _selectedShop,
                   hint: Text('Shop'),
@@ -176,7 +170,6 @@ class _BrowseScreenState extends State<BrowseScreen> {
             ),
           ),
           SizedBox(height: 12),
-          // Product Grid
           Expanded(
             child: _loading
                 ? Center(child: CircularProgressIndicator())
@@ -199,7 +192,7 @@ class _BrowseScreenState extends State<BrowseScreen> {
                             ),
                             elevation: 0,
                             child: Material(
-                              color: Colors.transparent, // Keep background transparent if needed
+                              color: Colors.transparent, 
                               child: InkWell(
                                 onTap: () {
                                   print('Tapped!');

@@ -26,7 +26,6 @@ class ProductDetailsScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Product Image
             if ((product['productImage'] ?? '').isNotEmpty)
               Image.network(
                 product['productImage'],
@@ -121,7 +120,7 @@ class ProductDetailsScreen extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                   onPressed: () {},
-                  child: const Text('Add To Cart', style: TextStyle(fontSize: 18, color: Colors.white)),
+                  child: const Text('Buy Now', style: TextStyle(fontSize: 18, color: Colors.white)),
                 ),
               ),
             ),

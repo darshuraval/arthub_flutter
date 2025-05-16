@@ -54,7 +54,6 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
           children: [
             LocationButton(
               onPressed: () {
-                // Handle get current location
                 print('Getting current location...');
               },
             ),
@@ -106,7 +105,6 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
         child: CustomButton(
           text: 'Save',
           onPressed: () {
-            // Handle save address
             print('Saving address...');
           },
           backgroundColor: const Color(0xFF2D9B88),

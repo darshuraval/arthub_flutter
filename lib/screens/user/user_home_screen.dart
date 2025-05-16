@@ -17,7 +17,6 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
   List<Map<String, dynamic>> _products = [];
   bool _loading = true;
 
-  // Example static categories
   final List<Map<String, String>> _categories = [
     {'name': 'Culture', 'image': 'images/product_logo.png'},
     {'name': 'Mughal', 'image': 'images/product_logo.png'},
@@ -76,7 +75,6 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
             children: [
               SizedBox(height: 16),
               SizedBox(height: 20),
-              // Banner
               ClipRRect(
                 borderRadius: BorderRadius.circular(16),
                 child: Stack(
@@ -120,7 +118,6 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                 ),
               ),
               SizedBox(height: 24),
-              // Categories
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -193,7 +190,6 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                 ),
               ),
               SizedBox(height: 16),
-              // New Product
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -225,7 +221,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                               ],
                             ),
                             child: Material(
-                              color: Colors.transparent, // Keep background transparent if needed
+                              color: Colors.transparent,
                               child: InkWell(
                                 onTap: () {
                                   print('Tapped!');
@@ -247,14 +243,12 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                                         width: double.infinity,
                                         fit: BoxFit.cover,
                                         errorBuilder: (context, error, stackTrace) {
-                                          // If network image fails, show asset image
                                           return Image.asset(
                                             'images/product_logo.png',
                                             height: 120,
                                             width: double.infinity,
                                             fit: BoxFit.cover,
                                             errorBuilder: (context, error, stackTrace) {
-                                              // If asset image fails, show the default network placeholder
                                               return Image.network(
                                                 'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//product_logo.png',
                                                 height: 120,

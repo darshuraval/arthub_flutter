@@ -25,10 +25,8 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _initializeApp() async {
-    // Wait for 2 seconds to show the splash screen
     await Future.delayed(const Duration(seconds: 2));
 
-    // Check if it's the first time opening the app
     final isFirstTime = await SharedPreferencesService.isFirstTime();
     if (isFirstTime) {
       if (mounted) {
@@ -40,11 +38,9 @@ class _SplashScreenState extends State<SplashScreen> {
       return;
     }
 
-    // Check if user is already logged in
     final user = _auth.currentUser;
     if (user != null) {
       try {
-        // Check user role and navigate accordingly
         final userDoc = await _firestore.collection('users').doc(user.uid).get();
         if (mounted) {
           if (userDoc.exists && userDoc.data()!['role'] == 'admin') {
@@ -60,7 +56,6 @@ class _SplashScreenState extends State<SplashScreen> {
           }
         }
       } catch (e) {
-        // If there's an error checking the role, go to login screen
         if (mounted) {
           Navigator.pushReplacement(
             context,
@@ -69,7 +64,6 @@ class _SplashScreenState extends State<SplashScreen> {
         }
       }
     } else {
-      // If not logged in, go to login screen
       if (mounted) {
         Navigator.pushReplacement(
           context,

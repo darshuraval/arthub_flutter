@@ -64,16 +64,6 @@ class _MyStoreScreenState extends State<MyStoreScreen> {
     if (!_hasStore) {
       return Scaffold(
         backgroundColor: Color(0xFFF6F6F6),
-        appBar: AppBar(
-          backgroundColor: Color(0xFF21967A),
-          elevation: 0,
-          title: Text('My Store', style: TextStyle(fontWeight: FontWeight.bold)),
-          centerTitle: false,
-          actions: [
-            IconButton(icon: Icon(Icons.favorite_border), onPressed: () {}),
-            IconButton(icon: Icon(Icons.shopping_cart_outlined), onPressed: () {}),
-          ],
-        ),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -99,7 +89,6 @@ class _MyStoreScreenState extends State<MyStoreScreen> {
         ),
       );
     }
-    // Store exists
     final store = _store ?? {};
     final storeName = store['storeName'] ?? '';
     final storeId = store['storeId'] ?? '';
@@ -107,21 +96,10 @@ class _MyStoreScreenState extends State<MyStoreScreen> {
     final avatarLetter = userName.isNotEmpty ? userName[0].toUpperCase() : 'U';
     return Scaffold(
       backgroundColor: Color(0xFFF6F6F6),
-      appBar: AppBar(
-        backgroundColor: Color(0xFF21967A),
-        elevation: 0,
-        title: const Text('My Store', style: TextStyle(fontWeight: FontWeight.bold)),
-        centerTitle: false,
-        actions: [
-          IconButton(icon: Icon(Icons.favorite_border), onPressed: () {}),
-          IconButton(icon: Icon(Icons.shopping_cart_outlined), onPressed: () {}),
-        ],
-      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
             const SizedBox(height: 24),
-            // Store avatar and name section
             Center(
               child: Column(
                 children: [
@@ -188,14 +166,13 @@ class _MyStoreScreenState extends State<MyStoreScreen> {
                   ),
                   const SizedBox(height: 12),
                   TextButton(
-                    onPressed: null, // Disabled
+                    onPressed: null,
                     child: Text('Remove  Store', style: TextStyle(color: Colors.grey[400], fontWeight: FontWeight.w500)),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 24),
-            // Products section
             FutureBuilder<List<Map<String, dynamic>>>(
               future: ProductService().getProductsByStoreId(storeId),
               builder: (context, snapshot) {
@@ -233,7 +210,9 @@ class _MyStoreScreenState extends State<MyStoreScreen> {
                 return Column(
                   children: [
                     OutlinedButton(
-                      onPressed: () {}, // TODO: Implement add product
+                      onPressed: () {
+                          Navigator.of(context).push(MaterialPageRoute(builder: (_) => AddProductScreen(storeId: storeId)));
+                      },
                       child: const Text('Add Product', style: TextStyle(fontSize: 20, color: Color(0xFF21967A), fontWeight: FontWeight.bold)),
                       style: OutlinedButton.styleFrom(
                         side: BorderSide(color: Color(0xFF21967A)),
@@ -260,7 +239,7 @@ class _MyStoreScreenState extends State<MyStoreScreen> {
                           ),
                           elevation: 0,
                           child: Material(
-                              color: Colors.transparent, // Keep background transparent if needed
+                              color: Colors.transparent, 
                               child: InkWell(
                                 onTap: () {
                                   print('Tapped!');

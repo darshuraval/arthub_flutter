@@ -307,7 +307,6 @@ class _UsersScreenState extends State<UsersScreen> {
     try {
       List<Map<String, dynamic>> users = [];
       if (_selectedRole != 'All' && _selectedStatus != 'All') {
-        // Firestore doesn't support multiple where on different fields easily, so fetch by status and filter by role in Dart
         users = await _userService.getUsersByStatus(_selectedStatus);
         users = users.where((u) => u['role'] == _selectedRole).toList();
       } else if (_selectedRole != 'All') {

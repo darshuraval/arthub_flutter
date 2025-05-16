@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:arthub_flutter/screens/auth/login_screen.dart';
 import 'package:arthub_flutter/services/shared_preferences_service.dart';
 import 'package:arthub_flutter/config/app_styles.dart';
-// import 'package:arthub_flutter/widgets/custom_button.dart'; // Uncomment if you have CustomButton
+// import 'package:arthub_flutter/widgets/custom_button.dart'; 
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({Key? key}) : super(key: key);

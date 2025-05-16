@@ -9,7 +9,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 Widget _buildImageWidget(String imagePath) {
   if (kIsWeb) {
-    // For web, treat it as network image using bytes or uploaded file URL
     return Image.network(imagePath);
   } else {
     return Image.file(File(imagePath));
@@ -201,13 +200,10 @@ class _ProductsScreenState extends State<ProductsScreen> {
 
   Future<void> _deleteProduct(dynamic productId) async {
   try {
-    // Get the product to retrieve the image path
     final product = _products.firstWhere((p) => p['productId'] == productId, orElse: () => {});
     final imageUrl = product['productImage'] as String?;
     String? filePath;
-    // Extract file path from the image URL if it exists and is a Supabase URL
     if (imageUrl != null && imageUrl.contains('supabase.co/storage/v1/object/public/products/')) {
-      // The file path is after .../products/
       final idx = imageUrl.indexOf('/products/');
       if (idx != -1) {
         filePath = imageUrl.substring(idx + '/products/'.length);
@@ -353,7 +349,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
                                       ),
                                       const SizedBox(height: 4),
 
-                                      // Price Row with discount badge aligned right
                                       Row(
                                         crossAxisAlignment: CrossAxisAlignment.center,
                                         children: [
@@ -376,7 +371,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
                                             ),
                                           ),
 
-                                          // Spacer to push the badge to the right
                                           const Spacer(),
 
                                           if (discount != null && discount > 0 && price > 0)
@@ -411,7 +405,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
                                   if (value == 'edit') {
                                     _showProductForm(product: product);
                                   } else if (value == 'delete') {
-                                    // Use productId, fallback to id if needed
                                     final id = product['productId'] ?? product['id'];
                                     if (id != null && id is String) {
                                       _deleteProduct(id);
@@ -472,12 +465,12 @@ class _ProductFormDialogState extends State<_ProductFormDialog> {
   'Mixed Media',
   'Other',
 ];
-String? _selectedCategory; // For dropdown
+String? _selectedCategory; 
   late TextEditingController _artistController;
   late TextEditingController _storeIdController;
 
-  File? _pickedImageFile; // for mobile
-  Uint8List? _pickedImageBytes; // for web
+  File? _pickedImageFile; 
+  Uint8List? _pickedImageBytes; 
   String? _uploadedImageUrl;
   bool _isUploading = false;
 
@@ -522,7 +515,7 @@ String? _selectedCategory; // For dropdown
       if (result != null && result.files.isNotEmpty) {
         setState(() {
           _pickedImageBytes = result.files.first.bytes;
-          _pickedImageFile = null; // Clear mobile file
+          _pickedImageFile = null; 
         });
       }
     } else {
@@ -530,7 +523,7 @@ String? _selectedCategory; // For dropdown
       if (result != null && result.files.isNotEmpty) {
         setState(() {
           _pickedImageFile = File(result.files.single.path!);
-          _pickedImageBytes = null; // Clear web bytes
+          _pickedImageBytes = null;
         });
       }
     }

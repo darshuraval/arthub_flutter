@@ -52,15 +52,11 @@ class _LoginScreenState extends State<LoginScreen> {
         password: _passwordController.text,
       );
 
-      // Get user document from Firestore
       final userDoc = await _firestore.collection('users').doc(userCredential.user!.uid).get();
       
-      // Check both Firebase Auth email verification and Firestore isEmailVerified flag
       if (!userCredential.user!.emailVerified || !userDoc.exists || !userDoc.data()!['isEmailVerified']) {
-        // Send verification email if not already verified
         await userCredential.user!.sendEmailVerification();
         
-        // Navigate to email verification screen
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => EmailVerificationScreen(
@@ -70,15 +66,12 @@ class _LoginScreenState extends State<LoginScreen> {
         return;
       }
 
-      // Check if user is admin
       if (userDoc.exists && userDoc.data()!['role'] == 'admin') {
-        // Navigate to admin screen if user is admin
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const AdminHomeScreen()),
         );
       } else {
-        // Navigate to regular main screen for non-admin users
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const UserMainScreen()),
@@ -121,19 +114,17 @@ class _LoginScreenState extends State<LoginScreen> {
           'email': userCredential.user!.email,
           'createdAt': FieldValue.serverTimestamp(),
           'isEmailVerified': true,
-          'role': 'user', // Default role for new users
+          'role': 'user', 
         });
       }
 
-      // Check if user is admin
       if (userDoc.exists && userDoc.data()!['role'] == 'admin') {
-        // Navigate to admin screen if user is admin
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const AdminHomeScreen()),
         );
       } else {
-        // Navigate to regular main screen for non-admin users
+        
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const UserMainScreen()),
@@ -152,12 +143,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Check if user is already logged in and verified
     if(_auth.currentUser != null) {
-      // Check both Firebase Auth and Firestore verification status
       _firestore.collection('users').doc(_auth.currentUser!.uid).get().then((userDoc) {
         if (!_auth.currentUser!.emailVerified || !userDoc.exists || !userDoc.data()!['isEmailVerified']) {
-          // If not verified, redirect to verification screen
+          
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => EmailVerificationScreen(
@@ -165,13 +154,12 @@ class _LoginScreenState extends State<LoginScreen> {
             )),
           );
         } else if (userDoc.exists && userDoc.data()!['role'] == 'admin') {
-          // If admin, redirect to admin screen
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const AdminHomeScreen()),
           );
         } else {
-          // If regular user, redirect to main screen
+          
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const UserMainScreen()),

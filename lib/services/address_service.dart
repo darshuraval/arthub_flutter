@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class AddressService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   
-  // Create a new address
   Future<Map<String, dynamic>> createAddress({
     required String userId,
     required String street,
@@ -38,25 +37,20 @@ class AddressService {
     return address;
   }
 
-  // Get all addresses
   Future<List<Map<String, dynamic>>> getAllAddresses() async {
     final querySnapshot = await _firestore.collection('addresses').get();
     return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
-  // Get address by ID
   Future<Map<String, dynamic>?> getAddressById(String addressId) async {
     final doc = await _firestore.collection('addresses').doc(addressId).get();
     return doc.exists ? doc.data() : null;
   }
-
-  // Get addresses by user ID
   Future<List<Map<String, dynamic>>> getAddressesByUserId(String userId) async {
     final querySnapshot = await _firestore.collection('addresses').where('userId', isEqualTo: userId).get();
     return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
-  // Update address
   Future<Map<String, dynamic>?> updateAddress({
     required String addressId,
     String? street,
@@ -90,7 +84,6 @@ class AddressService {
     return address;
   }
 
-  // Delete address
   Future<bool> deleteAddress(String addressId) async {
     final doc = await _firestore.collection('addresses').doc(addressId).get();
     if (!doc.exists) {
@@ -101,7 +94,6 @@ class AddressService {
     return true;
   }
 
-  // Search addresses
   Future<List<Map<String, dynamic>>> searchAddresses(String query) async {
     query = query.toLowerCase();
     final querySnapshot = await _firestore.collection('addresses').get();
@@ -118,42 +110,34 @@ class AddressService {
         .toList();
   }
 
-  // Get addresses by city
   Future<List<Map<String, dynamic>>> getAddressesByCity(String city) async {
     final querySnapshot = await _firestore.collection('addresses').where('city', isEqualTo: city).get();
     return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
-  // Get addresses by state
   Future<List<Map<String, dynamic>>> getAddressesByState(String state) async {
     final querySnapshot = await _firestore.collection('addresses').where('state', isEqualTo: state).get();
     return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
-  // Get addresses by country
   Future<List<Map<String, dynamic>>> getAddressesByCountry(String country) async {
     final querySnapshot = await _firestore.collection('addresses').where('country', isEqualTo: country).get();
     return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
-  // Get addresses by pincode
   Future<List<Map<String, dynamic>>> getAddressesByPincode(String pincode) async {
     final querySnapshot = await _firestore.collection('addresses').where('pincode', isEqualTo: pincode).get();
     return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
-  // Get addresses by status
   Future<List<Map<String, dynamic>>> getAddressesByStatus(String status) async {
     final querySnapshot = await _firestore.collection('addresses').where('status', isEqualTo: status).get();
     return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
-  // Update address status
   Future<Map<String, dynamic>?> updateAddressStatus(String addressId, String status) async {
     return updateAddress(addressId: addressId, status: status);
   }
-
-  // Get addresses by location
   Future<List<Map<String, dynamic>>> getAddressesByLocation({
     String? city,
     String? state,
@@ -164,7 +148,6 @@ class AddressService {
     return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
-  // Get address statistics
   Future<Map<String, dynamic>> getAddressStatistics() async {
     final querySnapshot = await _firestore.collection('addresses').get();
     final totalAddresses = querySnapshot.docs.length;
@@ -185,12 +168,9 @@ class AddressService {
     };
   }
 
-  // Validate address
   Future<bool> validateAddress(String addressId) async {
     final doc = await _firestore.collection('addresses').doc(addressId).get();
     if (!doc.exists) return false;
-
-    // Check if all required fields are present and not empty
     return doc['street']?.isNotEmpty == true &&
            doc['city']?.isNotEmpty == true &&
            doc['district']?.isNotEmpty == true &&

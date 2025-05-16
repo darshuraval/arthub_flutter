@@ -44,10 +44,8 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> with 
     );
     _animationController.forward();
     
-    // Check verification status immediately
     _checkEmailVerification();
     
-    // Set up periodic verification check
     Timer.periodic(const Duration(seconds: 5), (timer) {
       if (!_isVerified) {
         _checkEmailVerification();
@@ -69,10 +67,8 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> with 
     });
 
     try {
-      // Sign out the current user
       await _auth.signOut();
       
-      // Navigate back to login screen
       if (mounted) {
         Navigator.pushAndRemoveUntil(
           context,
@@ -114,7 +110,6 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> with 
         final userDoc = await _firestore.collection('users').doc(user.uid).get();
         
         if ((userDoc.exists && userDoc.data()!['isEmailVerified'] == true) || user.emailVerified) {
-          // If not yet updated in Firestore, update it
           if (userDoc.exists && userDoc.data()!['isEmailVerified'] != true) {
             await _firestore.collection('users').doc(user.uid).update({
               'isEmailVerified': true,
