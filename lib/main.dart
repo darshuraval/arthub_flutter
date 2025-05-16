@@ -6,6 +6,7 @@ import 'package:arthub_flutter/firebase_options.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:arthub_flutter/screens/auth/login_screen.dart';
 import 'package:arthub_flutter/screens/admin/admin_home_screen.dart';
+import 'package:arthub_flutter/screens/user/user_main_screen.dart';
 import 'package:arthub_flutter/test/widget_test_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -50,6 +51,7 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.white,
       ),
       // home: const WidgetTestScreen(),
+      // home: UserMainScreen(),
       // home: const AdminHomeScreen(),
       // home: const LoginScreen(),
       home: const SplashScreen(),

@@ -3,9 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:arthub_flutter/screens/auth/register_screen.dart';
 import 'package:arthub_flutter/screens/auth/forgot_password_screen.dart';
-import 'package:arthub_flutter/screens/main_screen.dart';
 import 'package:arthub_flutter/screens/admin/admin_main_screen.dart';
+import 'package:arthub_flutter/screens/admin/admin_home_screen.dart';
 import 'package:arthub_flutter/screens/user/user_main_screen.dart';
+import 'package:arthub_flutter/screens/user/user_home_screen.dart';
 import 'package:arthub_flutter/widgets/auth_input_field.dart';
 import 'package:arthub_flutter/widgets/custom_button.dart';
 import 'package:arthub_flutter/services/auth_service.dart';
@@ -74,7 +75,7 @@ class _LoginScreenState extends State<LoginScreen> {
         // Navigate to admin screen if user is admin
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const AdminMainScreen()),
+          MaterialPageRoute(builder: (context) => const AdminHomeScreen()),
         );
       } else {
         // Navigate to regular main screen for non-admin users
@@ -129,7 +130,7 @@ class _LoginScreenState extends State<LoginScreen> {
         // Navigate to admin screen if user is admin
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const AdminMainScreen()),
+          MaterialPageRoute(builder: (context) => const AdminHomeScreen()),
         );
       } else {
         // Navigate to regular main screen for non-admin users
@@ -167,7 +168,7 @@ class _LoginScreenState extends State<LoginScreen> {
           // If admin, redirect to admin screen
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const AdminMainScreen()),
+            MaterialPageRoute(builder: (context) => const AdminHomeScreen()),
           );
         } else {
           // If regular user, redirect to main screen

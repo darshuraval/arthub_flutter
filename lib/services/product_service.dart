@@ -77,12 +77,20 @@ class ProductService {
 
   // Get products by category
   Future<List<Map<String, dynamic>>> getProductsByCategory(String category) async {
-    return _products.values.where((product) => product['category'] == category).toList();
+    final querySnapshot = await _firestore
+      .collection('products')
+      .where('category', isEqualTo: category)
+      .get();
+    return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
   // Get products by artist
   Future<List<Map<String, dynamic>>> getProductsByArtist(String artist) async {
-    return _products.values.where((product) => product['artist'] == artist).toList();
+    final querySnapshot = await _firestore
+      .collection('products')
+      .where('artist', isEqualTo: artist)
+      .get();
+    return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
   // Update product
@@ -153,7 +161,11 @@ class ProductService {
 
   // Get products by status
   Future<List<Map<String, dynamic>>> getProductsByStatus(String status) async {
-    return _products.values.where((product) => product['status'] == status).toList();
+    final querySnapshot = await _firestore
+      .collection('products')
+      .where('status', isEqualTo: status)
+      .get();
+    return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
   // Update product status

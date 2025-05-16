@@ -343,63 +343,63 @@ class _ProductsScreenState extends State<ProductsScreen> {
                                         ),
                                 ),
                                 Padding(
-  padding: const EdgeInsets.all(12.0),
-  child: Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        product['productName'] ?? '',
-        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-      ),
-      const SizedBox(height: 4),
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        product['productName'] ?? '',
+                                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                                      ),
+                                      const SizedBox(height: 4),
 
-      // Price Row with discount badge aligned right
-      Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          if (discount != null && discount > 0)
-            Text(
-              '\$${price}',
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
-                decoration: TextDecoration.lineThrough,
-              ),
-            ),
-          if (discount != null && discount > 0) const SizedBox(width: 8),
-          Text(
-            '\$${discount != null && discount > 0 ? (price - discount).toStringAsFixed(2) : price}',
-            style: const TextStyle(
-              fontSize: 18,
-              color: Color(0xFF339989),
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+                                      // Price Row with discount badge aligned right
+                                      Row(
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          if (discount != null && discount > 0)
+                                            Text(
+                                              '\$${price}',
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                color: Colors.grey,
+                                                decoration: TextDecoration.lineThrough,
+                                              ),
+                                            ),
+                                          if (discount != null && discount > 0) const SizedBox(width: 8),
+                                          Text(
+                                            '\$${discount != null && discount > 0 ? (price - discount).toStringAsFixed(2) : price}',
+                                            style: const TextStyle(
+                                              fontSize: 18,
+                                              color: Color(0xFF339989),
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
 
-          // Spacer to push the badge to the right
-          const Spacer(),
+                                          // Spacer to push the badge to the right
+                                          const Spacer(),
 
-          if (discount != null && discount > 0 && price > 0)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.redAccent,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                '-${((100 * discount) / price).round()}% OFF',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                ),
-              ),
-            ),
-        ],
-      ),
-    ],
-  ),
-),
+                                          if (discount != null && discount > 0 && price > 0)
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                              decoration: BoxDecoration(
+                                                color: Colors.redAccent,
+                                                borderRadius: BorderRadius.circular(8),
+                                              ),
+                                              child: Text(
+                                                '-${((100 * discount) / price).round()}% OFF',
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
 
                               ],
                             ),
@@ -462,7 +462,17 @@ class _ProductFormDialogState extends State<_ProductFormDialog> {
   late TextEditingController _descController;
   late TextEditingController _quantityController;
   late TextEditingController _quantityTypeController;
-  late TextEditingController _categoryController;
+  final List<String> _categories = [
+  'Painting',
+  'Sculpture',
+  'Digital Art',
+  'Photography',
+  'Print',
+  'Drawing',
+  'Mixed Media',
+  'Other',
+];
+String? _selectedCategory; // For dropdown
   late TextEditingController _artistController;
   late TextEditingController _storeIdController;
 
@@ -481,10 +491,14 @@ class _ProductFormDialogState extends State<_ProductFormDialog> {
     _descController = TextEditingController(text: widget.product?['productDescription'] ?? '');
     _quantityController = TextEditingController(text: widget.product?['quantity']?.toString() ?? '');
     _quantityTypeController = TextEditingController(text: widget.product?['quantityType'] ?? '');
-    _categoryController = TextEditingController(text: widget.product?['category'] ?? '');
+    final initialCategory = widget.product?['category'];
+    _selectedCategory = (initialCategory != null && _categories.contains(initialCategory))
+        ? initialCategory
+        : null;
     _artistController = TextEditingController(text: widget.product?['artist'] ?? '');
     _storeIdController = TextEditingController(text: widget.product?['storeId'] ?? '');
     _uploadedImageUrl = widget.product?['productImage'];
+    debugPrint('Edit Product: productImage = \\${widget.product?['productImage']}\\, _uploadedImageUrl = \\$_uploadedImageUrl\\');
   }
 
   @override
@@ -496,7 +510,7 @@ class _ProductFormDialogState extends State<_ProductFormDialog> {
     _descController.dispose();
     _quantityController.dispose();
     _quantityTypeController.dispose();
-    _categoryController.dispose();
+    
     _artistController.dispose();
     _storeIdController.dispose();
     super.dispose();
@@ -570,7 +584,7 @@ class _ProductFormDialogState extends State<_ProductFormDialog> {
       'productDescription': _descController.text.trim(),
       'quantity': int.tryParse(_quantityController.text) ?? 0,
       'quantityType': _quantityTypeController.text.trim(),
-      'category': _categoryController.text.trim(),
+      'category': _selectedCategory ?? '',
       'artist': _artistController.text.trim(),
       'storeId': _storeIdController.text.trim(),
     };
@@ -596,8 +610,19 @@ class _ProductFormDialogState extends State<_ProductFormDialog> {
                         ? Image.file(_pickedImageFile!, height: 150, width: 150, fit: BoxFit.cover)
                         : (_pickedImageBytes != null
                             ? Image.memory(_pickedImageBytes!, height: 150, width: 150, fit: BoxFit.cover)
-                            : (_uploadedImageUrl != null && _uploadedImageUrl!.isNotEmpty
-                                ? Image.network(_uploadedImageUrl!, height: 150, width: 150, fit: BoxFit.cover)
+                            : (_uploadedImageUrl != null && _uploadedImageUrl!.trim().isNotEmpty
+                                ? Image.network(
+                                    _uploadedImageUrl!,
+                                    height: 150,
+                                    width: 150,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) => Container(
+                                      height: 150,
+                                      width: 150,
+                                      color: Colors.grey[300],
+                                      child: const Icon(Icons.broken_image, size: 50, color: Colors.red),
+                                    ),
+                                  )
                                 : Container(
                                     height: 150,
                                     width: 150,
@@ -649,10 +674,20 @@ class _ProductFormDialogState extends State<_ProductFormDialog> {
                 controller: _quantityTypeController,
                 decoration: const InputDecoration(labelText: 'Quantity Type'),
               ),
-              TextFormField(
-                controller: _categoryController,
-                decoration: const InputDecoration(labelText: 'Category'),
-              ),
+              DropdownButtonFormField<String>(
+  value: _selectedCategory,
+  decoration: const InputDecoration(labelText: 'Category'),
+  items: _categories.map((cat) => DropdownMenuItem(
+    value: cat,
+    child: Text(cat),
+  )).toList(),
+  onChanged: (value) {
+    setState(() {
+      _selectedCategory = value;
+    });
+  },
+  validator: (value) => value == null || value.isEmpty ? 'Please select a category' : null,
+),
               TextFormField(
                 controller: _artistController,
                 decoration: const InputDecoration(labelText: 'Artist'),

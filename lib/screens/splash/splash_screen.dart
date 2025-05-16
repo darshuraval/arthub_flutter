@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:arthub_flutter/screens/auth/login_screen.dart';
 import 'package:arthub_flutter/screens/onboarding/onboarding_screen.dart';
 import 'package:arthub_flutter/screens/admin/admin_main_screen.dart';
-import 'package:arthub_flutter/screens/main_screen.dart';
+import 'package:arthub_flutter/screens/user/user_main_screen.dart';
 import 'package:arthub_flutter/services/shared_preferences_service.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -55,7 +55,7 @@ class _SplashScreenState extends State<SplashScreen> {
           } else {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const MainScreen()),
+              MaterialPageRoute(builder: (context) => const UserMainScreen()),
             );
           }
         }
