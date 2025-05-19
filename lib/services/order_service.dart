@@ -8,39 +8,37 @@ class OrderService {
   // Create a new order
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<Map<String, dynamic>> createOrder({
+  Future<void> createOrder({
     required String productId,
     required double amount,
     required String buyerId,
     required String sellerId,
     required String storeId,
     required String paymentMethod,
-    String? transactionId,
+    required String transactionId,
     double? discount,
-    String? paidAt,
+    String? addressId,
     String status = 'pending',
+    String? couponId,
   }) async {
-    final now = DateTime.now().toIso8601String();
     final orderId = DateTime.now().millisecondsSinceEpoch.toString();
-    
-    final order = {
+    final orderData = {
       'orderId': orderId,
-      'transactionId': transactionId,
       'productId': productId,
       'amount': amount,
-      'discount': discount,
       'buyerId': buyerId,
       'sellerId': sellerId,
       'storeId': storeId,
       'paymentMethod': paymentMethod,
-      'paid_at': paidAt,
+      'transactionId': transactionId,
+      'discount': discount ?? 0.0,
+      'addressId': addressId,
       'status': status,
-      'created_at': now,
-      'updated_at': now,
+      'couponId': couponId,
+      'created_at': DateTime.now().toIso8601String(),
+      'updated_at': DateTime.now().toIso8601String(),
     };
-
-    await _firestore.collection('orders').doc(orderId).set(order);
-    return order;
+    await _firestore.collection('orders').doc(orderId).set(orderData);
   }
 
   // Get all orders
@@ -67,6 +65,12 @@ class OrderService {
     return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
+  // Get orders by transaction ID
+  Future<List<Map<String, dynamic>>> getOrdersByTransactionId(String transactionId) async {
+    final querySnapshot = await _firestore.collection('orders').where('transactionId', isEqualTo: transactionId).get();
+    return querySnapshot.docs.map((doc) => doc.data()).toList();
+  }
+
   // Get orders by store ID
   Future<List<Map<String, dynamic>>> getOrdersByStoreId(String storeId) async {
     final querySnapshot = await _firestore.collection('orders').where('storeId', isEqualTo: storeId).get();
@@ -85,6 +89,7 @@ class OrderService {
     String? transactionId,
     double? discount,
     String? paidAt,
+    String? addressId,
     String? status,
   }) async {
     final doc = await _firestore.collection('orders').doc(orderId).get();
@@ -99,6 +104,7 @@ class OrderService {
     if (transactionId != null) order['transactionId'] = transactionId;
     if (discount != null) order['discount'] = discount;
     if (paidAt != null) order['paid_at'] = paidAt;
+    if (addressId != null) order['addressId'] = addressId;
     if (status != null) order['status'] = status;
     order['updated_at'] = DateTime.now().toIso8601String();
     await doc.reference.update(order);
@@ -205,6 +211,15 @@ for (final amt in amounts) {
 }
 return total;
   }
+
+  // Get latest order ID
+  Future<String?> getLatestOrderId() async {
+    final querySnapshot = await _firestore.collection('orders').orderBy('created_at', descending: true).limit(1).get();
+    if (querySnapshot.docs.isNotEmpty) {
+      return querySnapshot.docs.first.id;
+    }
+    return null;
+  }
 } 
 
 // {
@@ -217,8 +232,13 @@ return total;
 //   'sellerId': String,
 //   'storeId': String,
 //   'paymentMethod': String,
+//   'addressId': String,
 //   'paid_at': String?,
 //   'status': String,
+//   'couponId': String?,
+//   'couponCode': String?,
+//   'couponType': String?,
+//   'userId': String?,
 //   'created_at': String (ISO8601 timestamp),
 //   'updated_at': String (ISO8601 timestamp)
 // }
@@ -233,6 +253,7 @@ return total;
 //   sellerId: 'seller123',
 //   storeId: 'store123',
 //   paymentMethod: 'credit_card',
+//   addressId: 'address123',
 //   discount: 10.0
 // );
 
@@ -243,6 +264,7 @@ return total;
 // await orderService.updateOrder(
 //   orderId: 'order123',
 //   status: 'shipped',
+//   addressId: 'address123',
 //   paidAt: DateTime.now().toIso8601String()
 // );
 

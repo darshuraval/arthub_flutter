@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:arthub_flutter/screens/user/checkout_screen.dart';
 
 class ProductDetailsScreen extends StatelessWidget {
   final Map<String, dynamic> product;
@@ -114,12 +115,21 @@ class ProductDetailsScreen extends StatelessWidget {
               child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CheckoutScreen(
+                          product: product
+                        ),
+                      ),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF21967A),
                     shape: const StadiumBorder(),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  onPressed: () {},
                   child: const Text('Buy Now', style: TextStyle(fontSize: 18, color: Colors.white)),
                 ),
               ),

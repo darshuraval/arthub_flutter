@@ -26,7 +26,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     const OrdersScreen(),
     const PaymentsScreen(),
     const AddressScreen(),
-    const ProfileScreen(),
+    ProfileScreen(),
   ];
 
   @override

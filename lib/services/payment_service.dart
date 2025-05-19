@@ -217,6 +217,23 @@ class PaymentService {
       'failedTransactions': failedPayments,
     };
   }
+
+  // Simulate a payment process
+  Future<bool> processPayment({required double amount, required String paymentMethod}) async {
+    // Simulate network delay
+    await Future.delayed(Duration(seconds: 2));
+    // Simulate payment success
+    return true;
+  }
+
+  // Get latest transaction ID
+  Future<String?> getLatestTransactionId() async {
+    final querySnapshot = await _firestore.collection('payments').orderBy('created_at', descending: true).limit(1).get();
+    if (querySnapshot.docs.isNotEmpty) {
+      return querySnapshot.docs.first.id;
+    }
+    return null;
+  }
 } 
 
 // {

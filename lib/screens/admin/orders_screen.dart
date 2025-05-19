@@ -25,7 +25,21 @@ class _OrdersScreenState extends State<OrdersScreen> {
     setState(() => _isLoading = true);
     final orders = await _orderService.getAllOrders();
     setState(() {
-      _orders = orders;
+      _orders = orders.map((order) => {
+        'orderId': order['orderId'],
+        'userId': order['userId'],
+        'total': order['total'],
+        'status': order['status'],
+        'created_at': order['created_at'],
+        'updated_at': order['updated_at'],
+        'productId': order['productId'],
+        'amount': order['amount'],
+        'buyerId': order['buyerId'],
+        'sellerId': order['sellerId'],
+        'storeId': order['storeId'],
+        'paymentMethod': order['paymentMethod'],
+        'discount': order['discount'],
+      }).toList();
       _isLoading = false;
     });
   }
@@ -51,33 +65,41 @@ class _OrdersScreenState extends State<OrdersScreen> {
             'userId': result['userId'] ?? '',
             'total': double.tryParse(result['total'] ?? '0') ?? 0.0,
             'status': result['status'] ?? 'pending',
+            'transactionId': result['transactionId'] ?? '',
             'created_at': now,
             'updated_at': now,
+            'productId': result['productId'] ?? '',
+            'amount': double.tryParse(result['total'] ?? '') ?? 0.0,
+            'buyerId': result['userId'] ?? '',
+            'sellerId': result['sellerId'] ?? '',
+            'storeId': result['storeId'] ?? '',
+            'paymentMethod': result['paymentMethod'] ?? '',
+            'discount': (result['discount'] ?? '').isEmpty ? null : double.tryParse(result['discount']),
           };
           await _orderService.createOrder(
             productId: result['productId'] ?? '',
-            amount: double.tryParse(result['total'] ?? '') ?? 0.0,
+            transactionId: result['transactionId'] ?? '',
+            amount: double.tryParse(result['total'] ?? '0') ?? 0.0,
             buyerId: result['userId'] ?? '',
             sellerId: result['sellerId'] ?? '',
             storeId: result['storeId'] ?? '',
             paymentMethod: result['paymentMethod'] ?? '',
-            transactionId: (result['transactionId'] ?? '').isEmpty ? null : result['transactionId'],
-            discount: (result['discount'] ?? '').isEmpty ? null : double.tryParse(result['discount']),
-            paidAt: (result['paid_at'] ?? '').isEmpty ? null : result['paid_at'],
+            discount: result['discount'] != null && result['discount'] != '' ? double.tryParse(result['discount']) : 0.0,
             status: result['status'] ?? 'pending',
+            addressId: null,
+            couponId: null,
           );
         } else {
           await _orderService.updateOrder(
             orderId: order['orderId'],
             productId: result['productId'] ?? order['productId'],
+            transactionId: result['transactionId'] ?? order['transactionId'],
             amount: double.tryParse(result['total'] ?? order['amount'].toString()) ?? order['amount'],
             buyerId: result['userId'] ?? order['buyerId'],
             sellerId: result['sellerId'] ?? order['sellerId'],
             storeId: result['storeId'] ?? order['storeId'],
             paymentMethod: result['paymentMethod'] ?? order['paymentMethod'],
-            transactionId: result['transactionId'] ?? order['transactionId'],
             discount: result['discount'] != null && result['discount'] != '' ? double.tryParse(result['discount']) : order['discount'],
-            paidAt: result['paid_at'] ?? order['paid_at'],
             status: result['status'] ?? order['status'],
           );
         }
@@ -228,11 +250,7 @@ class _OrderCard extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text('Payment Method: ${order['paymentMethod'] ?? ''}', style: const TextStyle(fontSize: 16)),
                 const SizedBox(height: 2),
-                Text('Transaction ID: ${order['transactionId'] ?? ''}', style: const TextStyle(fontSize: 16)),
-                const SizedBox(height: 2),
                 Text('Discount: ${order['discount'] ?? ''}', style: const TextStyle(fontSize: 16)),
-                const SizedBox(height: 2),
-                Text('Paid At: ${order['paid_at'] ?? ''}', style: const TextStyle(fontSize: 16)),
                 const SizedBox(height: 2),
                 Text(
                   'Status: ${order['status'] ?? 'pending'}',
@@ -291,9 +309,7 @@ class _OrderFormDialogState extends State<_OrderFormDialog> {
   late TextEditingController _sellerIdController;
   late TextEditingController _storeIdController;
   late TextEditingController _paymentMethodController;
-  late TextEditingController _transactionIdController;
   late TextEditingController _discountController;
-  late TextEditingController _paidAtController;
   late TextEditingController _statusController;
 
   @override
@@ -305,9 +321,7 @@ class _OrderFormDialogState extends State<_OrderFormDialog> {
     _sellerIdController = TextEditingController(text: widget.order?['sellerId'] ?? '');
     _storeIdController = TextEditingController(text: widget.order?['storeId'] ?? '');
     _paymentMethodController = TextEditingController(text: widget.order?['paymentMethod'] ?? '');
-    _transactionIdController = TextEditingController(text: widget.order?['transactionId'] ?? '');
     _discountController = TextEditingController(text: widget.order?['discount']?.toString() ?? '');
-    _paidAtController = TextEditingController(text: widget.order?['paid_at'] ?? '');
     _statusController = TextEditingController(text: widget.order?['status'] ?? 'pending');
   }
 
@@ -319,9 +333,7 @@ class _OrderFormDialogState extends State<_OrderFormDialog> {
     _sellerIdController.dispose();
     _storeIdController.dispose();
     _paymentMethodController.dispose();
-    _transactionIdController.dispose();
     _discountController.dispose();
-    _paidAtController.dispose();
     _statusController.dispose();
     super.dispose();
   }
@@ -335,9 +347,7 @@ class _OrderFormDialogState extends State<_OrderFormDialog> {
       'sellerId': _sellerIdController.text.trim(),
       'storeId': _storeIdController.text.trim(),
       'paymentMethod': _paymentMethodController.text.trim(),
-      'transactionId': _transactionIdController.text.trim(),
       'discount': _discountController.text.trim(),
-      'paid_at': _paidAtController.text.trim(),
       'status': _statusController.text.trim(),
     };
     Navigator.of(context).pop(data);
@@ -385,17 +395,9 @@ class _OrderFormDialogState extends State<_OrderFormDialog> {
                 validator: (value) => (value == null || value.trim().isEmpty) ? 'Please enter payment method' : null,
               ),
               TextFormField(
-                controller: _transactionIdController,
-                decoration: const InputDecoration(labelText: 'Transaction ID (optional)'),
-              ),
-              TextFormField(
                 controller: _discountController,
                 decoration: const InputDecoration(labelText: 'Discount (optional)'),
                 keyboardType: TextInputType.numberWithOptions(decimal: true),
-              ),
-              TextFormField(
-                controller: _paidAtController,
-                decoration: const InputDecoration(labelText: 'Paid At (optional)'),
               ),
               TextFormField(
                 controller: _statusController,
