@@ -14,6 +14,7 @@ class CheckoutPaymentScreen extends StatefulWidget {
   final String productId;
   final String sellerId;
   final String storeId;
+  final Map<String, dynamic> product;
 
   const CheckoutPaymentScreen({
     Key? key,
@@ -22,6 +23,7 @@ class CheckoutPaymentScreen extends StatefulWidget {
     required this.productId,
     required this.sellerId,
     required this.storeId,
+    required this.product,
   }) : super(key: key);
 
   @override
@@ -160,11 +162,11 @@ class _CheckoutPaymentScreenState extends State<CheckoutPaymentScreen> {
           MaterialPageRoute(
             builder: (context) => OrderSuccessScreen(
               orderId: payment['transactionId'],
-              productName: 'Product', // TODO: Replace with actual product name if available
-              imageUrl: '', // TODO: Replace with actual product image URL if available
+              productName: widget.product['productName'],
+              imageUrl: widget.product['productImage'],
               price: widget.totalPrice,
-              address: _currentSelectedAddress['fullAddress'] ?? '',
-              mobile: _currentSelectedAddress['mobile'] ?? '',
+              address: _currentSelectedAddress['street'] + ', ' + _currentSelectedAddress['city'] + ', ' + _currentSelectedAddress['state'] + ', ' + _currentSelectedAddress['country'] + ', ' + _currentSelectedAddress['pincode'] ?? '',
+              mobile: _currentSelectedAddress['mobile'].toString() ?? '',
             ),
           ),
         );
@@ -193,10 +195,10 @@ class _CheckoutPaymentScreenState extends State<CheckoutPaymentScreen> {
                 Text('Product Details: Price - ₹${widget.totalPrice}'),
                 const SizedBox(height: 8),
                 Text('Seller Details: ${widget.sellerId}'),
+                // const SizedBox(height: 8),
+                // Text('Store Details: ${widget.storeId}'),
                 const SizedBox(height: 8),
-                Text('Store Details: ${widget.storeId}'),
-                const SizedBox(height: 8),
-                Text('Buyer Details: ${FirebaseAuth.instance.currentUser!.uid}'),
+                Text('Buyer Details: ${FirebaseAuth.instance.currentUser!.email}'),
                 const SizedBox(height: 8),
                 const Divider(),
                 Text('Payment Details:'),

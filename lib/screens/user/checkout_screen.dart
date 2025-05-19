@@ -174,10 +174,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   MaterialPageRoute(
                     builder: (context) => CheckoutPaymentScreen(
                       selectedAddress: _selectedAddress!,
-                      totalPrice: totalPrice,
                       productId: widget.product['productId'],
                       sellerId: _storeOwnerId ?? 'Unknown',
                       storeId: widget.product['storeId'],
+                      totalPrice: widget.product['price'] ?? 0.0,
+                      product: widget.product,
                     ),
                   ),
                 );

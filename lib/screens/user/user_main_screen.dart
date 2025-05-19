@@ -7,6 +7,10 @@ import 'profile_screen.dart';
 import 'package:arthub_flutter/services/auth_service.dart';
 import 'package:arthub_flutter/screens/auth/login_screen.dart';
 import 'package:arthub_flutter/screens/admin/admin_home_screen.dart';
+import 'package:arthub_flutter/screens/user/favorite_screen.dart';
+import 'package:arthub_flutter/screens/user/order_history_screen.dart';
+import 'package:arthub_flutter/screens/user/my_store_screen.dart';
+
 
 class UserMainScreen extends StatefulWidget {
   const UserMainScreen({Key? key}) : super(key: key);
@@ -44,22 +48,26 @@ class _UserMainScreenState extends State<UserMainScreen> {
         title: Text(_titles[_selectedIndex], style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
         centerTitle: true,
         actions: [
-          IconButton(
-            icon: Icon(Icons.logout, color: Colors.white),
-            tooltip: 'Logout',
-            onPressed: () async {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginScreen()),
-              );
-              await AuthService().signOut();
-            },
-          ),
+          // IconButton(
+          //   icon: Icon(Icons.logout, color: Colors.white),
+          //   tooltip: 'Logout',
+          //   onPressed: () async {
+          //     Navigator.pushReplacement(
+          //       context,
+          //       MaterialPageRoute(builder: (context) => const LoginScreen()),
+          //     );
+          //     await AuthService().signOut();
+          //   },
+          // ),
           if (_selectedIndex == 0) ...[
-            IconButton(icon: Icon(Icons.favorite_border, color: Colors.white), onPressed: () {}),
+            IconButton(icon: Icon(Icons.favorite_border, color: Colors.white), onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => FavoriteScreen()));
+            }),
             Stack(
               children: [
-                IconButton(icon: Icon(Icons.shopping_cart_outlined, color: Colors.white), onPressed: () {}),
+                IconButton(icon: Icon(Icons.history, color: Colors.white), onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => OrderHistoryScreen()));
+                }),
                 Positioned(
                   right: 8,
                   top: 8,
@@ -76,10 +84,14 @@ class _UserMainScreenState extends State<UserMainScreen> {
             ),
           ],
           if (_selectedIndex != 0) ...[
-            IconButton(icon: Icon(Icons.favorite_border, color: Colors.white), onPressed: () {}),
+            IconButton(icon: Icon(Icons.favorite_border, color: Colors.white), onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => FavoriteScreen()));
+            }),
             Stack(
               children: [
-                IconButton(icon: Icon(Icons.shopping_cart_outlined, color: Colors.white), onPressed: () {}),
+                IconButton(icon: Icon(Icons.shopping_cart_outlined, color: Colors.white), onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => OrderHistoryScreen()));
+                }),
                 Positioned(
                   right: 8,
                   top: 8,

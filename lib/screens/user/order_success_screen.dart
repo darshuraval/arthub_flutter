@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 class OrderSuccessScreen extends StatelessWidget {
   final String orderId;
@@ -22,42 +23,98 @@ class OrderSuccessScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Order Details'),
+        backgroundColor: const Color(0xFF21967A),
+        title: const Text('Order Details', style: TextStyle(color: Colors.white)),
+        centerTitle: true,
         automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.close, color: Colors.white),
+            onPressed: () {
+              Navigator.of(context).popUntil((route) => route.isFirst);
+            },
+          )
+        ],
       ),
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            const SizedBox(height: 32),
-            const Icon(Icons.check_circle, color: Colors.green, size: 80),
-            const SizedBox(height: 16),
-            const Text('Thanks for Order', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 24),
-            Card(
-              child: ListTile(
-                leading: Image.network(imageUrl, width: 56, height: 56, fit: BoxFit.cover),
-                title: Text(productName),
-                subtitle: Text('₹${price.toStringAsFixed(2)}'),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              const SizedBox(height: 20),
+              // Lottie.asset('assets/lottie/order_success.json', height: 150),
+              Image.asset('images/done.png', height: 150),
+              const SizedBox(height: 20),
+              const Text(
+                'Thanks for Order',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
-            ),
-            const SizedBox(height: 24),
-            Text('Order ID - $orderId', style: const TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 24),
-            ListTile(
-              title: const Text('Delivery Address'),
-              subtitle: Text(address),
-              trailing: Text('Mobile: $mobile'),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).popUntil((route) => route.isFirst);
-              },
-              child: const Text('Back to Home'),
-            ),
-          ],
+              const SizedBox(height: 20),
+              Card(
+                elevation: 3,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Row(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(15),
+                      child: Image.network(imageUrl, height: 100, width: 100, fit: BoxFit.cover),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(productName, style: const TextStyle(fontWeight: FontWeight.bold)),
+                            const SizedBox(height: 5),
+                            Text('₹${price.toStringAsFixed(2)}', style: const TextStyle(color: Colors.green)),
+                            const SizedBox(height: 5),
+                            Text('Qty: 1'),
+                          ],
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Text('Track Order', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
+              Text('Order ID - $orderId', style: const TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 30),
+              const Text('Delivery Address', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
+              Card(
+                elevation: 3,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: ListTile(
+                  title: Text(address),
+                  subtitle: Text('mobile : $mobile'),
+                ),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).popUntil((route) => route.isFirst);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF21967A),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  child: const Text('Back to Home', style: TextStyle(color: Colors.white, fontSize: 18)),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
-}
+}    
