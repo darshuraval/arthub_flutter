@@ -1,9 +1,11 @@
 import 'dart:io';
+import 'package:arthub_flutter/services/firestore_service.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:arthub_flutter/services/product_service.dart';
 import 'package:arthub_flutter/services/cloud_storage_service.dart';
 import 'package:flutter/foundation.dart'; 
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:arthub_flutter/services/product_service.dart';
 
 
 class AddProductScreen extends StatefulWidget {
@@ -37,10 +39,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final ImagePicker _picker = ImagePicker();
 
   Future<void> _pickImages() async {
-    final picked = await _picker.pickMultiImage();
-    if (picked != null && picked.isNotEmpty) {
+    final picked = await _picker.pickImage(source: ImageSource.gallery);
+    if (picked != null) {
       setState(() {
-        _images.addAll(picked.take(4 - _images.length));
+        _images = [picked]; // Only allow one image
       });
       if (kIsWeb && _images.isNotEmpty) {
         final bytes = await _images.first.readAsBytes();
@@ -71,13 +73,31 @@ class _AddProductScreenState extends State<AddProductScreen> {
         if (kIsWeb) {
           final bytes = await image.readAsBytes();
           final uploadedUrl = await CloudStorageService.uploadProductImageWeb(bytes);
-          if (uploadedUrl != null) imageUrl = uploadedUrl;
+          if (uploadedUrl != null && uploadedUrl.isNotEmpty) {
+            imageUrl = uploadedUrl;
+          } else {
+            Navigator.of(context).pop();
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Image upload failed. Please try again.')),
+            );
+            return;
+          }
         } else {
           final file = File(image.path);
           final uploadedUrl = await CloudStorageService.uploadProductImage(file);
-          if (uploadedUrl != null) imageUrl = uploadedUrl;
+          if (uploadedUrl != null && uploadedUrl.isNotEmpty) {
+            imageUrl = uploadedUrl;
+          } else {
+            Navigator.of(context).pop();
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Image upload failed. Please try again.')),
+            );
+            return;
+          }
         }
       }
+      // Debug log
+      print('Image URL to be saved: $imageUrl');
       final deliveryDetails = {'location': _locationController.text};
       final extra = {'details': _additionalDetails};
       await ProductService().createProduct(

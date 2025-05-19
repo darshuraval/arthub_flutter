@@ -50,6 +50,16 @@ class _CheckoutPaymentScreenState extends State<CheckoutPaymentScreen> {
 
     // Listen for changes in the coupon code input
     _couponController.addListener(() {
+      // Convert coupon code to uppercase in real time
+      final text = _couponController.text;
+      final selection = _couponController.selection;
+      if (text != text.toUpperCase()) {
+        _couponController.value = TextEditingValue(
+          text: text.toUpperCase(),
+          selection: TextSelection.collapsed(offset: text.length),
+        );
+        return; // Prevents double setState
+      }
       if (_couponController.text != _appliedCouponCode) {
         setState(() {
           _discount = 0.0;

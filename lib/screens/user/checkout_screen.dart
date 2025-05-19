@@ -90,7 +90,20 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             padding: const EdgeInsets.all(16.0),
             child: Row(
               children: [
-                Image.network(widget.product['productImage'], width: 100, height: 100, fit: BoxFit.cover),
+                Image.network(
+                  (widget.product['productImage'] ?? '').isNotEmpty
+                      ? widget.product['productImage']
+                      : 'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//product_logo.png',
+                  width: 100,
+                  height: 100,
+                  fit: BoxFit.cover,
+                  errorBuilder: (ctx, e, st) => Image.network(
+                    'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//product_logo.png',
+                    width: 100,
+                    height: 100,
+                    fit: BoxFit.cover,
+                  ),
+                ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(

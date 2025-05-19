@@ -193,8 +193,11 @@ class _MyStoreScreenState extends State<MyStoreScreen> {
                       ),
                       const SizedBox(height: 28),
                       OutlinedButton(
-                        onPressed: () {
-                          Navigator.of(context).push(MaterialPageRoute(builder: (_) => AddProductScreen(storeId: storeId)));
+                        onPressed: () async {
+                          await Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => AddProductScreen(storeId: storeId)),
+                          );
+                          setState(() {}); // Reload after returning from add product
                         },
                         child: const Text('Add Product', style: TextStyle(fontSize: 20, color: Color(0xFF21967A), fontWeight: FontWeight.bold)),
                         style: OutlinedButton.styleFrom(
@@ -210,8 +213,11 @@ class _MyStoreScreenState extends State<MyStoreScreen> {
                 return Column(
                   children: [
                     OutlinedButton(
-                      onPressed: () {
-                          Navigator.of(context).push(MaterialPageRoute(builder: (_) => AddProductScreen(storeId: storeId)));
+                      onPressed: () async {
+                        await Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => AddProductScreen(storeId: storeId)),
+                        );
+                        setState(() {}); // Reload after returning from add product
                       },
                       child: const Text('Add Product', style: TextStyle(fontSize: 20, color: Color(0xFF21967A), fontWeight: FontWeight.bold)),
                       style: OutlinedButton.styleFrom(

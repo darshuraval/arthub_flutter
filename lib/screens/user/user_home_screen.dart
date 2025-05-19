@@ -16,12 +16,12 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
   final ProductService _productService = ProductService();
   List<Map<String, dynamic>> _products = [];
   bool _loading = true;
-
+// Culture, Mughal, Still Life, WildLife, Persian, Landscape, Folk, Hindu
   final List<Map<String, String>> _categories = [
-    {'name': 'Culture', 'image': 'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//product_logo.pngs'},
-    {'name': 'Mughal', 'image': 'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//product_logo.png'},
+    {'name': 'Culture', 'image': 'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//culture.jpg'},
+    {'name': 'Mughal', 'image': 'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//mughal.jpg'},
     {'name': 'Still Life', 'image': 'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//stillLife.jpg'},
-    {'name': 'WildLife', 'image': 'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//stillLife.jpg'},
+    {'name': 'WildLife', 'image': 'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//WildLife.jpg'},
     {'name': 'Persian', 'image': 'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//persian.webp'},
     {'name': 'Landscape', 'image': 'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//landscape.jpg'},
     {'name': 'Folk', 'image': 'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//Folk.webp'},

@@ -36,7 +36,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
         title: const Text('Add Card'),
         backgroundColor: const Color(0xFF21967A),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -101,6 +101,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
           ],
         ),
       ),
+      resizeToAvoidBottomInset: true,
     );
   }
 }

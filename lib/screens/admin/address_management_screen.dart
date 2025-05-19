@@ -100,7 +100,7 @@ class _AddressManagementScreenState extends State<AddressManagementScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Total Amount Breakdown', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const Text('Add New Address', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 // Assuming product price and delivery fee are passed as arguments
                 // Text('Product Price: ${widget.product['price']}'),
@@ -191,7 +191,7 @@ class _AddressFormScreenState extends State<AddressFormScreen> {
         title: Text(widget.address == null ? 'Add Address' : 'Edit Address'),
         backgroundColor: const Color(0xFF21967A),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
@@ -236,15 +236,25 @@ class _AddressFormScreenState extends State<AddressFormScreen> {
                 onPressed: _saveAddress,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF21967A),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  padding: const EdgeInsets.symmetric(vertical:15, horizontal: 30),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
                 ),
-                child: const Text('Save Address', style: TextStyle(color: Colors.white, fontSize: 18)),
+                child: const Text(
+                  "Save Adderess",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ],
           ),
         ),
       ),
+      resizeToAvoidBottomInset: true,
     );
   }
 }

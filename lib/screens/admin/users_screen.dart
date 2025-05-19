@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../services/user_service.dart';
-import '../../widgets/section_header.dart';
-import '../../widgets/custom_search_bar.dart';
-import '../../widgets/custom_button.dart';
 
 class UsersScreen extends StatefulWidget {
   const UsersScreen({super.key});

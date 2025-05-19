@@ -10,18 +10,9 @@ class CloudStorageService {
   //   return "https://letsenhance.io/blog/content/images/size/w2000/2025/04/Thumbnail_LE_upscale_strong_x2-1.jpg";
   // }
 
-
   static Future<String?> uploadProductImageWeb(Uint8List bytes) async {
     try {
-      // Check if Supabase is initialized
-      if (!(Supabase.instance.client.auth.currentSession?.isExpired ?? true)) {
-        await Supabase.initialize(
-          url: 'https://yynwntzanqxcdihswljp.supabase.co',
-          anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5bndudHphbnF4Y2RpaHN3bGpwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDczMzI0MTMsImV4cCI6MjA2MjkwODQxM30.gnTe49uBfb4fOeTxrJG6xp-LgERzPJ304vEg4bqg7SA',
-          debug: true, // Enable debug mode to see more detailed error messages
-        );
-        print('Supabase initialized successfully');
-      }
+      // Do not re-initialize Supabase if already initialized
 
       // Generate a unique file name
       final fileName = '${DateTime.now().millisecondsSinceEpoch}_web_upload.png';
@@ -51,17 +42,7 @@ class CloudStorageService {
   /// Uploads a file to Supabase Storage and returns the public URL.
   static Future<String?> uploadProductImage(File file) async {
     try {
-      // Check if Supabase is initialized
-      if (Supabase.instance.client.auth.currentSession == null ||
-    Supabase.instance.client.auth.currentSession!.isExpired) {
-      await Supabase.initialize(
-          url: 'https://yynwntzanqxcdihswljp.supabase.co',
-          anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5bndudHphbnF4Y2RpaHN3bGpwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDczMzI0MTMsImV4cCI6MjA2MjkwODQxM30.gnTe49uBfb4fOeTxrJG6xp-LgERzPJ304vEg4bqg7SA',
-          debug: true, // Enable debug mode to see more detailed error messages
-        );
-        print('Supabase client is not initialized or session is expired');
-      }
-
+      // Do NOT re-initialize Supabase here. Supabase should be initialized only once in main.dart or app entry point.
       // Generate a unique file name using timestamp and original file name
       final fileName = '${DateTime.now().millisecondsSinceEpoch}_${file.path.split('/').last}';
       

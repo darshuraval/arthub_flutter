@@ -27,18 +27,20 @@ class ProductDetailsScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if ((product['productImage'] ?? '').isNotEmpty)
-              Image.network(
-                product['productImage'],
+            Image.network(
+              (product['productImage'] ?? '').isNotEmpty
+                  ? product['productImage']
+                  : 'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//product_logo.png',
+              width: double.infinity,
+              height: 220,
+              fit: BoxFit.cover,
+              errorBuilder: (ctx, e, st) => Image.network(
+                'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//product_logo.png',
                 width: double.infinity,
                 height: 220,
                 fit: BoxFit.cover,
-                errorBuilder: (ctx, e, st) => Container(
-                  height: 220,
-                  color: Colors.grey[200],
-                  child: const Icon(Icons.image, size: 80, color: Colors.grey),
-                ),
               ),
+            ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               child: Column(
