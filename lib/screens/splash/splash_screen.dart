@@ -81,8 +81,8 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(
-              'images/logo.png',
+            Image.network(
+              'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//logo_splashScreen.png',
               width: 150,
               height: 150,
             ),

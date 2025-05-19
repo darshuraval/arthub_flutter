@@ -214,8 +214,8 @@ class _BrowseScreenState extends State<BrowseScreen> {
                                         width: double.infinity,
                                         fit: BoxFit.cover,
                                         errorBuilder: (context, error, stackTrace) {
-                                          return Image.asset(
-                                            'images/product_logo.png',
+                                          return Image.network(
+                                            'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//product_logo.png',
                                             height: 120,
                                             width: double.infinity,
                                             fit: BoxFit.cover,

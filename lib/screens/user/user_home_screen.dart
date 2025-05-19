@@ -18,14 +18,14 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
   bool _loading = true;
 
   final List<Map<String, String>> _categories = [
-    {'name': 'Culture', 'image': 'images/product_logo.png'},
-    {'name': 'Mughal', 'image': 'images/product_logo.png'},
-    {'name': 'Still Life', 'image': 'images/product_logo.png'},
-    {'name': 'WildLife', 'image': 'images/product_logo.png'},
-    {'name': 'Persian', 'image': 'images/product_logo.png'},
-    {'name': 'Landscape', 'image': 'images/product_logo.png'},
-    {'name': 'Folk', 'image': 'images/product_logo.png'},
-    {'name': 'Hindu', 'image': 'images/product_logo.png'},
+    {'name': 'Culture', 'image': 'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//product_logo.pngs'},
+    {'name': 'Mughal', 'image': 'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//product_logo.png'},
+    {'name': 'Still Life', 'image': 'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//stillLife.jpg'},
+    {'name': 'WildLife', 'image': 'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//stillLife.jpg'},
+    {'name': 'Persian', 'image': 'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//persian.webp'},
+    {'name': 'Landscape', 'image': 'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//landscape.jpg'},
+    {'name': 'Folk', 'image': 'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//Folk.webp'},
+    {'name': 'Hindu', 'image': 'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//Hindu.jpeg'},
   ];
 
   @override
@@ -79,8 +79,8 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                 borderRadius: BorderRadius.circular(16),
                 child: Stack(
                   children: [
-                    Image.asset(
-                      'images/product_logo.png',
+                    Image.network(
+                      'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//product_logo.png',
                       height: 170,
                       width: double.infinity,
                       fit: BoxFit.cover,
@@ -150,7 +150,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                         children: [
                           ClipRRect(
                             borderRadius: BorderRadius.circular(12),
-                            child: Image.asset(
+                            child: Image.network(
                               cat['image']!,
                               width: double.infinity,
                               height: double.infinity,
@@ -243,8 +243,8 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                                         width: double.infinity,
                                         fit: BoxFit.cover,
                                         errorBuilder: (context, error, stackTrace) {
-                                          return Image.asset(
-                                            'images/product_logo.png',
+                                          return Image.network(
+                                            'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//product_logo.png',
                                             height: 120,
                                             width: double.infinity,
                                             fit: BoxFit.cover,

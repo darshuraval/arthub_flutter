@@ -109,8 +109,8 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
                                       fit: BoxFit.cover,
                                       errorBuilder: (context, error, stackTrace) {
                                         // If network image fails, show asset image
-                                        return Image.asset(
-                                          'assets/images/product_logo.png',
+                                        return Image.network(
+                                          'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//product_logo.png',
                                           height: 240,
                                           width: double.infinity,
                                           fit: BoxFit.cover,

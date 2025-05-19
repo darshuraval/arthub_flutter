@@ -43,7 +43,7 @@ class OrderSuccessScreen extends StatelessWidget {
             children: [
               const SizedBox(height: 20),
               // Lottie.asset('assets/lottie/order_success.json', height: 150),
-              Image.asset('images/done.png', height: 150),
+              Image.asset('https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//Done.png', height: 150),
               const SizedBox(height: 20),
               const Text(
                 'Thanks for Order',

@@ -60,8 +60,8 @@ class _MyStoreScreenState extends State<MyStoreScreen> {
               color: const Color(0xFF2D9B88),
               child: Column(
                 children: [
-                  Image.asset(
-                    'assets/images/store_setup.png', 
+                  Image.network(
+                    'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//shop.jpg', 
                     height: 120,
                   ),
                   const SizedBox(height: 16),

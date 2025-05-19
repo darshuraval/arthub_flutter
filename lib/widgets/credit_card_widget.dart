@@ -37,8 +37,8 @@ class CreditCardWidget extends StatelessWidget {
         ),
       );
     } else {
-      return Image.asset(
-        'assets/images/mastercard.png',
+      return Image.network(
+        'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//Hindu.jpeg',
         height: 40,
       );
     }

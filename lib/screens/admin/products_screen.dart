@@ -326,14 +326,14 @@ class _ProductsScreenState extends State<ProductsScreen> {
                                           productImageUrl,
                                           height: 200,
                                           fit: BoxFit.cover,
-                                          errorBuilder: (context, error, stackTrace) => Image.asset(
-                                            'images/product_logo.png',
+                                          errorBuilder: (context, error, stackTrace) => Image.network(
+                                            'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//product_logo.png',
                                             height: 200,
                                             fit: BoxFit.cover,
                                           ),
                                         )
-                                      : Image.asset(
-                                          'images/product_logo.png',
+                                      : Image.network(
+                                          'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//product_logo.png',
                                           height: 200,
                                           fit: BoxFit.cover,
                                         ),

@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "319340216446-jboptq04mvdpoikq7snr1k5ksui86sgn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.arthub",
+            "certificate_hash": "a6a2ed0f32f7358732b6614a5f8c1abaa8dd24d8"
+          }
+        },
+        {
           "client_id": "319340216446-qc63ck6c8a139e7c91q1128d6bgpk56c.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -30,6 +38,57 @@
             {
               "client_id": "319340216446-qc63ck6c8a139e7c91q1128d6bgpk56c.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "319340216446-43e2vrbsu99ola35c7n0ef7fkuksh7fa.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.arthubFlutter"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:319340216446:android:dbf01f6cc0fb802c90982f",
+        "android_client_info": {
+          "package_name": "com.example.arthub_flutter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "319340216446-pbfs25408bljvn2trncv46fcb210iho9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.arthub_flutter",
+            "certificate_hash": "a6a2ed0f32f7358732b6614a5f8c1abaa8dd24d8"
+          }
+        },
+        {
+          "client_id": "319340216446-qc63ck6c8a139e7c91q1128d6bgpk56c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD0ZgNd0ngfM1PIEurUBKHId0vizNBjb0M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "319340216446-qc63ck6c8a139e7c91q1128d6bgpk56c.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "319340216446-43e2vrbsu99ola35c7n0ef7fkuksh7fa.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.arthubFlutter"
+              }
             }
           ]
         }
@@ -59,6 +118,13 @@
             {
               "client_id": "319340216446-qc63ck6c8a139e7c91q1128d6bgpk56c.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "319340216446-43e2vrbsu99ola35c7n0ef7fkuksh7fa.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.arthubFlutter"
+              }
             }
           ]
         }

@@ -17,17 +17,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   final List<_OnboardingContent> _contents = [
     _OnboardingContent(
-      image: 'images/onboarding1.png',
+      image: 'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//onboarding1.png',
       title: 'Empowering Artisans, Artist & Designer',
       description: 'Discover and connect with talented artists and designers from around the world.',
     ),
     _OnboardingContent(
-      image: 'images/onboarding2.png',
+      image: 'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//onboarding2.png',
       title: 'Connecting NGOs, Social Enterprises with Communities',
       description: 'Support social causes and make a difference through art and creativity.',
     ),
     _OnboardingContent(
-      image: 'images/onboarding3.png',
+      image: 'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//onboarding3.png',
       title: 'Donate, Invest & Support infrastructure projects',
       description: 'Contribute to meaningful projects and help build a better future for artists.',
     ),
@@ -82,7 +82,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Image.asset(
+                        Image.network(
                           _contents[index].image,
                           height: 300,
                         ),

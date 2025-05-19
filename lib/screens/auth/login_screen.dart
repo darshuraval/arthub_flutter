@@ -231,8 +231,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 16),
                 OutlinedButton.icon(
-                  icon: Image.asset(
-                    'images/google_logo.png',
+                  icon: Image.network(
+                    'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//google_logo.png',
                     height: 24,
                   ),
                   label: const Text(

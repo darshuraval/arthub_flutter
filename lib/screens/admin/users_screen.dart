@@ -38,8 +38,8 @@ class _UserCard extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: Image.asset(
-              'images/user_logo.png',
+            child: Image.network(
+              'https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//user_logo.png',
               width: 60,
               height: 60,
               fit: BoxFit.cover,

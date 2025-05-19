@@ -14,7 +14,7 @@ class GoogleSignInButton extends StatelessWidget {
         side: const BorderSide(color: Colors.grey),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
       ),
-      icon: Image.asset('assets/google_logo.png', height: 24), // Add your Google logo asset
+      icon: Image.network('https://yynwntzanqxcdihswljp.supabase.co/storage/v1/object/public/products//google_logo.png', height: 24), // Add your Google logo asset
       label: const Text('Sign in with Google'),
       onPressed: onPressed,
     );
