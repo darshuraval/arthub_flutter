@@ -7,6 +7,7 @@ import 'package:arthub_flutter/services/coupon_service.dart';
 import 'package:arthub_flutter/services/order_service.dart';
 import 'package:arthub_flutter/services/payment_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 class CheckoutPaymentScreen extends StatefulWidget {
   final Map<String, dynamic> selectedAddress;
@@ -41,12 +42,17 @@ class _CheckoutPaymentScreenState extends State<CheckoutPaymentScreen> {
   double _discount = 0.0;
   final CouponService _couponService = CouponService();
   String _appliedCouponCode = '';
+  late Razorpay _razorpay;
 
   @override
   void initState() {
     super.initState();
     _currentSelectedAddress = widget.selectedAddress;
     _loadCards();
+    _razorpay = Razorpay();
+    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
+    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
+    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
 
     // Listen for changes in the coupon code input
     _couponController.addListener(() {
@@ -67,6 +73,13 @@ class _CheckoutPaymentScreenState extends State<CheckoutPaymentScreen> {
         });
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _razorpay.clear();
+    _couponController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadCards() async {
@@ -136,61 +149,77 @@ class _CheckoutPaymentScreenState extends State<CheckoutPaymentScreen> {
     }
   }
 
-  Future<void> _processPayment() async {
+  void _openRazorpayCheckout() {
+    var options = {
+      'key': 'rzp_test_txwA53PD3dbftd', // Replace with your Razorpay key
+      'amount': ((widget.totalPrice + 100 + 5 + 2.5 - _discount) * 100).toInt(), // in paise
+      'name': 'ArtHub',
+      'description': 'Order Payment',
+      'prefill': {
+        'contact': _currentSelectedAddress['mobile'].toString(),
+        'email': FirebaseAuth.instance.currentUser!.email ?? ''
+      },
+      'theme': {'color': '#21967A'},
+      'currency': 'INR',
+    };
     try {
-      // Simulate payment gateway processing
-      final paymentSuccess = await _paymentService.processPayment(
+      _razorpay.open(options);
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  void _handlePaymentSuccess(PaymentSuccessResponse response) async {
+    try {
+      final payment = await _paymentService.createPayment(
+        senderId: FirebaseAuth.instance.currentUser!.uid,
+        receiverId: widget.sellerId,
         amount: widget.totalPrice + 100 + 5 + 2.5 - _discount,
-        paymentMethod: _selectedPaymentMethod,
+        paymentMethod: 'Razorpay',
+        status: 'Success',
+        transactionId: response.paymentId,
       );
-
-      if (paymentSuccess) {
-        // Create payment first and await the result
-        final payment = await _paymentService.createPayment(
-          senderId: FirebaseAuth.instance.currentUser!.uid,
-          receiverId: widget.sellerId,
-          amount: widget.totalPrice + 100 + 5 + 2.5 - _discount,
-          paymentMethod: _selectedPaymentMethod,
-          status: 'Success',
-        );
-        // Then create order with the transactionId from payment
-        await _orderService.createOrder(
-          productId: widget.productId,
-          transactionId: payment['transactionId'],
-          amount: widget.totalPrice + 100 + 5 + 2.5 - _discount,
-          buyerId: FirebaseAuth.instance.currentUser!.uid,
-          sellerId: widget.sellerId,
-          storeId: widget.storeId,
-          paymentMethod: _selectedPaymentMethod,
-          discount: _discount,
-          addressId: _currentSelectedAddress['addressId'],
-          couponId: _appliedCouponCode.isNotEmpty ? _appliedCouponCode : null,
-        );
-
-        // Navigate to order success screen
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => OrderSuccessScreen(
-              orderId: payment['transactionId'],
-              productName: widget.product['productName'],
-              imageUrl: widget.product['productImage'],
-              price: widget.totalPrice,
-              address: _currentSelectedAddress['street'] + ', ' + _currentSelectedAddress['city'] + ', ' + _currentSelectedAddress['state'] + ', ' + _currentSelectedAddress['country'] + ', ' + _currentSelectedAddress['pincode'] ?? '',
-              mobile: _currentSelectedAddress['mobile'].toString() ?? '',
-            ),
+      await _orderService.createOrder(
+        productId: widget.productId,
+        transactionId: payment['transactionId'],
+        amount: widget.totalPrice + 100 + 5 + 2.5 - _discount,
+        buyerId: FirebaseAuth.instance.currentUser!.uid,
+        sellerId: widget.sellerId,
+        storeId: widget.storeId,
+        paymentMethod: 'Razorpay',
+        discount: _discount,
+        addressId: _currentSelectedAddress['addressId'],
+        couponId: _appliedCouponCode.isNotEmpty ? _appliedCouponCode : null,
+      );
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => OrderSuccessScreen(
+            orderId: payment['transactionId'],
+            productName: widget.product['productName'],
+            imageUrl: widget.product['productImage'],
+            price: widget.totalPrice,
+            address: _currentSelectedAddress['street'] + ', ' + _currentSelectedAddress['city'] + ', ' + _currentSelectedAddress['state'] + ', ' + _currentSelectedAddress['country'] + ', ' + _currentSelectedAddress['pincode'] ?? '',
+            mobile: _currentSelectedAddress['mobile'].toString() ?? '',
           ),
-        );
-      } else {
-        // Show failure message
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Payment failed. Please try again.')),
-        );
-      }
+        ),
+      );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
+        SnackBar(content: Text('Order creation failed: $e')),
       );
     }
+  }
+
+  void _handlePaymentError(PaymentFailureResponse response) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Payment failed: ${response.message}')),
+    );
+  }
+
+  void _handleExternalWallet(ExternalWalletResponse response) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('External wallet selected: ${response.walletName}')),
+    );
   }
 
   void _showOrderDetails() {
@@ -240,7 +269,7 @@ class _CheckoutPaymentScreenState extends State<CheckoutPaymentScreen> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                _processPayment();
+                _openRazorpayCheckout();
               },
               child: const Text('Confirm Payment'),
             ),
