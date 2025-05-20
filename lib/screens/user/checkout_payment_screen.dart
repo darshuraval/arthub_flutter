@@ -151,7 +151,7 @@ class _CheckoutPaymentScreenState extends State<CheckoutPaymentScreen> {
 
   void _openRazorpayCheckout() {
     var options = {
-      'key': 'rzp_test_txwA53PD3dbftd', // Replace with your Razorpay key
+      'key': 'rzp_test_Dvn55mNvfzFqYk', // Replace with your Razorpay key
       'amount': ((widget.totalPrice + 100 + 5 + 2.5 - _discount) * 100).toInt(), // in paise
       'name': 'ArtHub',
       'description': 'Order Payment',
